@@ -113,7 +113,7 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HomePage()), // 두 번째 페이지로 이동
+                      builder: (context) => HomeScreen()), // 두 번째 페이지로 이동
                 );
               },
             ),
