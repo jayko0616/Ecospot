@@ -36,7 +36,6 @@ dependencies:
   crypto: ^3.0.3 # 정보 암호화를 위함 (사용자 비밀번호 암호화)
   cupertino_icons: ^1.0.2 # iOS 스타일의 위젯 사용을 위함
   camera: ^0.10.5+3
-  kakaomap_webview: ^0.6.2
 
 dev_dependencies:
   flutter_test:
