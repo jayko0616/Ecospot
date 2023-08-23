@@ -17,28 +17,23 @@ Future<MySQLConnection> dbConnector() async {
   );
 
   await conn.connect();
-
+  await selectAndPrintUsers(conn);
   print("Connected");
 
   return conn;
 }
 
-// // 전체 조회
-// Future<void> selectMember() async {
-//   final conn = await dbConnector();
-//   IResultSet? result;
+// 전체 조회
+Future<void> selectAndPrintUsers(MySQLConnection conn) async {
+  try {
+    final result = await conn.execute("SELECT * FROM users");
 
-//   try {
-//     result = await conn.execute("SELECT * FROM users");
-
-//     if (result.isNotEmpty) {
-//       for (final row in result.rows) {
-//         print(row.assoc());
-//       }
-//     }
-//   } catch (e) {
-//     print('Error : $e');
-//   } finally {
-//     await conn.close();
-//   }
-// }
+    if (result.isNotEmpty) {
+      for (final row in result.rows) {
+        print(row.assoc()["userName"]);
+      }
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}

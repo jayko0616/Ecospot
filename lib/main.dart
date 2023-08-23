@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ecospot/config/mySqlConnector.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
-import 'package:ecospot/screens/home_screen.dart';
-import 'package:ecospot/screens/register_screen.dart';
-import 'package:ecospot/screens/rank_screen.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   dbConnector();

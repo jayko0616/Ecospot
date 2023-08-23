@@ -1,12 +1,11 @@
 // ignore_for_file: use_build_context_synchronously, file_names
 
+import 'package:ecospot/config/dbInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'communityPage/communityMainPage.dart';
-import 'memoPage/memoMainPage.dart';
-import 'myInfoPage/myInfoMainPage.dart';
+import 'package:ecospot/config/mySqlConnector.dart';
 import 'package:ecospot/screens/home_screen.dart';
 import 'package:ecospot/screens/register_screen.dart';
 import 'package:ecospot/screens/rank_screen.dart';
@@ -20,6 +19,28 @@ class MyAppPage extends StatefulWidget {
 }
 
 class MyAppState extends State<MyAppPage> {
+  String accountName = ''; // 사용자 이름을 저장할 변수
+  //String accountEmail = ''; // 사용자 이메일을 저장할 변수
+  @override
+  void initState() {
+    super.initState();
+    // 앱이 시작될 때 사용자 정보를 가져오는 작업을 수행
+    loadUserData();
+  }
+
+  // 사용자 정보를 가져오는 함수
+  void loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String name =
+        prefs.getString('name') ?? ''; // 'name'은 데이터베이스에서 사용자 이름을 저장한 키
+    //String email = prefs.getString('email') ?? ''; // 'email'은 데이터베이스에서 사용자 이메일을 저장한 키
+
+    setState(() {
+      accountName = name;
+      //accountEmail = email;
+    });
+  }
+
   void showAlertDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -60,11 +81,15 @@ class MyAppState extends State<MyAppPage> {
         elevation: 0.0,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              //지도 위치 검색
+            },
             icon: Icon(Icons.search),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              //내정보 가져오기
+            },
             icon: Icon(Icons.person),
           )
         ],
@@ -76,7 +101,7 @@ class MyAppState extends State<MyAppPage> {
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage('assets/images/ecospotlogo.jpg'),
               ),
-              accountName: Text('내이름'),
+              accountName: Text(DbInfo.userName),
               accountEmail: Text('내계정'),
             ),
             ListTile(
@@ -101,7 +126,8 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RankPage()), // 두 번째 페이지로 이동
+                      builder: (context) =>
+                          HttpWithDioScreen()), // 두 번째 페이지로 이동
                 );
               },
             ),
