@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ecospot/config/mySqlConnector.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   dbConnector();
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ecospot',
+      debugShowCheckedModeBanner: false,
+      title: 'EcoSpot',
       home: TokenCheck(),
     );
   }

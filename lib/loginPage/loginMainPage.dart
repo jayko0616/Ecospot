@@ -2,7 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ecospot/header&footer.dart';
+import 'package:ecospot/mainPage.dart';
 import 'package:ecospot/loginPage/loginDB.dart';
 import 'package:ecospot/loginPage/memberRegisterPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,6 +40,7 @@ class _TokenCheckState extends State<TokenCheck> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -56,6 +57,7 @@ class LoginMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: LoginPage(),
     );
   }
@@ -92,6 +94,7 @@ class _LoginState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Padding(
