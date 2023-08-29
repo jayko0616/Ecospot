@@ -1,43 +1,98 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static final LatLng schoolLatlng = LatLng(
-    //위도와 경도 값 지정
-    37.540853,
-    127.078971,
+  Completer<GoogleMapController> _controller = Completer();
+
+  static final CameraPosition _kGoogle = const CameraPosition(
+    target: LatLng(20.42796133580664, 80.885749655962),
+    zoom: 20,
   );
 
-  static final CameraPosition initialPosition = CameraPosition(
-    //지도를 바라보는 카메라 위치
-    target: schoolLatlng, //카메라 위치(위도, 경도)
-    zoom: 15, //확대 정도
-  );
+  final List<Marker> _markers = <Marker>[
+    Marker(
+      markerId: MarkerId('1'),
+      position: LatLng(20.42796133580664, 75.885749655962),
+      infoWindow: InfoWindow(
+        title: 'My Position',
+      ),
+    ),
+  ];
+
+  Future<Position> getUserCurrentLocation() async {
+    await Geolocator.requestPermission().then((value) {}).onError((error, stackTrace) async {
+      await Geolocator.requestPermission();
+      print("ERROR" + error.toString());
+    });
+    return await Geolocator.getCurrentPosition();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Main Page',
-          style:
-          TextStyle(color: Colors.green[900], fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF0F9D58),
+        title: Text("Map"),
       ),
-      body: GoogleMap(
-        //구글 맵 사용
-        mapType: MapType.normal, //지도 유형 설정
-        initialCameraPosition: initialPosition, //지도 초기 위치 설정
+      body: Container(
+        child: SafeArea(
+          child: GoogleMap(
+            initialCameraPosition: _kGoogle,
+            markers: Set<Marker>.of(_markers),
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            compassEnabled: true,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          getUserCurrentLocation().then((value) async {
+            print(value.latitude.toString() + " " + value.longitude.toString());
+
+            _markers.add(
+              Marker(
+                markerId: MarkerId("2"),
+                position: LatLng(value.latitude, value.longitude),
+                infoWindow: InfoWindow(
+                  title: 'My Current Location',
+                ),
+              ),
+            );
+
+            CameraPosition cameraPosition = new CameraPosition(
+              target: LatLng(value.latitude, value.longitude),
+              zoom: 17,
+            );
+
+            final GoogleMapController controller = await _controller.future;
+            controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+            print("현재 위도: ${value.latitude}, 현재 경도: ${value.longitude}");
+
+            setState(() {});
+          });
+        },
+        child: Icon(Icons.location_searching),
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: HomeScreen(),
+  ));
 }
