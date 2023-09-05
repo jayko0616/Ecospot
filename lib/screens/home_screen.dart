@@ -98,26 +98,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _sendPlaceToServer(
       String name, LatLng location, PlaceCategory category) async {
-        final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
-        final response = await http.post(
-          Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(<String, dynamic>{
-            'name': name,
-            'latitude': location.latitude,
-            'longitude': location.longitude,
-            'category': category.toString().split('.').last, // Enum 값을 문자열로 변환
-          }),
-        );
+    final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+    final response = await http.post(
+      Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'name': name,
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+        'category': category.toString().split('.').last, // Enum 값을 문자열로 변환
+      }),
+    );
 
-        if (response.statusCode == 200) {
-          print('장소 등록 성공');
-        } else {
-          print('장소 등록 실패: ${response.statusCode}');
-        }
-      }
+    if (response.statusCode == 200) {
+      print('장소 등록 성공');
+    } else {
+      print('장소 등록 실패: ${response.statusCode}');
+    }
+  }
 
   void _addPlace(String name, LatLng location, PlaceCategory category) {
     final Place place = Place(name, location, category);
@@ -139,7 +139,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  Future<void> _showPlaceMarkers() async {
+  void _showPlaceMarkers() async {
+    if (_selectedCategory == null) {
+      return; // 카테고리가 선택되지 않았을 때는 아무 작업도 하지 않음
+    }
+
     final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
 
     // 장소 목록을 가져오는 API 호출
@@ -158,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final double latitude = placeData['latitude'];
         final double longitude = placeData['longitude'];
         final PlaceCategory category =
-            _getPlaceCategoryFromString(placeData['category']);
+        _getPlaceCategoryFromString(placeData['category']);
 
         final Place place = Place(name, LatLng(latitude, longitude), category);
         _selectedPlaces.add(place);
@@ -192,51 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return PlaceCategory.TrashCan; // 기본값
   }
-  // void _showPlaceMarkers() {
-  //   _markers.clear();
-  //   for (final place in _selectedPlaces) {
-  //     if (place.category == _selectedCategory) {
-  //       _markers.add(
-  //         Marker(
-  //           markerId: MarkerId(place.coordinates.toString()),
-  //           position: place.coordinates,
-  //           infoWindow: InfoWindow(
-  //             title: place.name,
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //   }
-  //   setState(() {});
-  // }
-
-  void _showPlaceList() {
-    final List<Place> categoryPlaces = _selectedPlaces
-        .where((place) => place.category == _selectedCategory)
-        .toList();
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
-              title:
-                  Text("${_selectedCategory.toString().split('.').last} List"),
-            ),
-            body: ListView.builder(
-              itemCount: categoryPlaces.length,
-              itemBuilder: (context, index) {
-                final place = categoryPlaces[index];
-                return ListTile(
-                  title: Text(place.name),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,25 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.lightGreen,
         title: Text("Map"),
-        actions: [
-          DropdownButton<PlaceCategory>(
-            style: TextStyle(color: Colors.white),
-            dropdownColor: Colors.teal,
-            value: _selectedCategory,
-            items: PlaceCategory.values.map((category) {
-              return DropdownMenuItem<PlaceCategory>(
-                value: category,
-                child: Text(category.toString().split('.').last),
-              );
-            }).toList(),
-            onChanged: (category) {
-              setState(() {
-                _selectedCategory = category!;
-              });
-              _showPlaceMarkers();
-            },
-          ),
-        ],
+        actions: [],
       ),
       body: Stack(
         children: [
@@ -277,7 +218,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 onMapCreated: (GoogleMapController controller) {
                   _controller.complete(controller);
                 },
-                onTap: _onMapTapped,
+                onTap: (LatLng location) {
+                  // 화면을 터치할 때마다 선택된 위치에 마커 표시
+                  _onMapTapped(location);
+                },
               ),
             ),
           ),
@@ -287,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 16.0, // Added left spacing
             child: Row(
               mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Distribute buttons evenly
+              MainAxisAlignment.spaceBetween, // Distribute buttons evenly
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -297,6 +241,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     _showPlaceMarkers();
                   },
                   child: Text("TrashCan"),
+                  style: ElevatedButton.styleFrom(
+                    primary: _selectedCategory == PlaceCategory.TrashCan
+                        ? Colors.green // 선택된 카테고리인 경우 배경색을 초록색으로 설정
+                        : Colors.grey, // 선택되지 않은 카테고리인 경우 배경색을 회색으로 설정
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    minimumSize: Size(120, 40),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -306,6 +259,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     _showPlaceMarkers();
                   },
                   child: Text("Toilet"),
+                  style: ElevatedButton.styleFrom(
+                    primary: _selectedCategory == PlaceCategory.Toilet
+                        ? Colors.green
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    minimumSize: Size(120, 40),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -315,6 +277,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     _showPlaceMarkers();
                   },
                   child: Text("Smoke"),
+                  style: ElevatedButton.styleFrom(
+                    primary: _selectedCategory == PlaceCategory.Smoke
+                        ? Colors.green
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    minimumSize: Size(120, 40),
+                  ),
                 ),
               ],
             ),
@@ -339,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 CameraPosition cameraPosition = new CameraPosition(
                   target: LatLng(value.latitude, value.longitude),
-                  zoom: 17,
+                  zoom: 16,
                 );
 
                 final GoogleMapController controller = await _controller.future;
