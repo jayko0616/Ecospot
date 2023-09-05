@@ -5,8 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+class AuthenticatedUser {
+  final String username;
+  final String email;
+
+  AuthenticatedUser(this.username, this.email);
+}
+
 // 로그인
-Future<String> login(String username, String password) async {
+Future<AuthenticatedUser?> login(String username, String password) async {
   final apiUrl = 'http://10.0.2.2:8080';
   final response = await http.post(
     Uri.parse(apiUrl + '/api/auth/signin'),
@@ -20,8 +27,11 @@ Future<String> login(String username, String password) async {
   );
 
   if (response.statusCode == 200) {
-    return '1';
+    final responseData = jsonDecode(response.body);
+    final username = responseData['username'];
+    final email = responseData['email'];
+    return AuthenticatedUser(username, email);
   } else {
-    return '-1';
+    return null;
   }
 }
