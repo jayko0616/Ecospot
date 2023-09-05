@@ -44,7 +44,7 @@ class MyAppState extends State<MyAppPage> {
 
   Future<void> logout() async {
     final apiUrl =
-        'http://localhost:8080/api/auth/signout'; // 실제 로그아웃 API 엔드포인트 URL로 변경해야 함
+        'http://10.0.2.2:8080/api/auth/signout'; // 실제 로그아웃 API 엔드포인트 URL로 변경해야 함
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');

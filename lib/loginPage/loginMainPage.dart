@@ -1,3 +1,4 @@
+import 'package:ecospot/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ecospot/mainPage.dart';
@@ -234,7 +235,7 @@ class _LoginState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MyAppPage(),
+                              builder: (context) => HomeScreen(),
                             ),
                           );
                         }

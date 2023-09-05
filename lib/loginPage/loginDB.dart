@@ -7,9 +7,9 @@ import 'dart:convert';
 
 // 로그인
 Future<String> login(String username, String password) async {
-  final apiUrl = 'http://localhost:8080'; // 실제 API 엔드포인트 URL로 변경해야 함
+  final apiUrl = 'http://10.0.2.2:8080';
   final response = await http.post(
-    Uri.parse(apiUrl + '/api/auth/signin'), // 로그인 엔드포인트로 변경
+    Uri.parse(apiUrl + '/api/auth/signin'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
