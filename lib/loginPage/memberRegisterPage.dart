@@ -22,7 +22,7 @@ class _MemberRegisterState extends State<MemberRegisterPage> {
       TextEditingController();
 
   Future<void> registerMember() async {
-    final apiUrl = 'http://localhost:8080'; // 실제 회원 가입 API 엔드포인트 URL로 변경해야 함
+    final apiUrl = 'http://10.0.2.2:8080'; // 실제 회원 가입 API 엔드포인트 URL로 변경해야 함
 
     final response = await http.post(
       Uri.parse(apiUrl + '/api/auth/signup'), // 회원 가입 엔드포인트로 변경

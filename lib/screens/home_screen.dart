@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 enum PlaceCategory {
   TrashCan,
@@ -38,9 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
   LatLng? _selectedLocation;
   PlaceCategory _selectedCategory = PlaceCategory.TrashCan;
 
-
   Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission().then((value) {}).onError((error, stackTrace) async {
+    await Geolocator.requestPermission()
+        .then((value) {})
+        .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
       print("ERROR" + error.toString());
     });
@@ -93,9 +96,34 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _sendPlaceToServer(
+      String name, LatLng location, PlaceCategory category) async {
+        final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+        final response = await http.post(
+          Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, dynamic>{
+            'name': name,
+            'latitude': location.latitude,
+            'longitude': location.longitude,
+            'category': category.toString().split('.').last, // Enum 값을 문자열로 변환
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          print('장소 등록 성공');
+        } else {
+          print('장소 등록 실패: ${response.statusCode}');
+        }
+      }
+
   void _addPlace(String name, LatLng location, PlaceCategory category) {
     final Place place = Place(name, location, category);
     _selectedPlaces.add(place);
+    // API 통신을 통한 장소 등록
+    _sendPlaceToServer(name, location, category);
     setState(() {});
   }
 
@@ -111,23 +139,76 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  void _showPlaceMarkers() {
-    _markers.clear();
-    for (final place in _selectedPlaces) {
-      if (place.category == _selectedCategory) {
-        _markers.add(
-          Marker(
-            markerId: MarkerId(place.coordinates.toString()),
-            position: place.coordinates,
-            infoWindow: InfoWindow(
-              title: place.name,
+  Future<void> _showPlaceMarkers() async {
+    final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+
+    // 장소 목록을 가져오는 API 호출
+    final response = await http.get(
+      Uri.parse(apiUrl + '/spot/places'), // 장소 목록을 가져오는 엔드포인트로 변경
+    );
+    if (response.statusCode == 200) {
+      print('hello');
+      final List<dynamic> placeList = jsonDecode(response.body);
+
+      _markers.clear();
+      _selectedPlaces.clear();
+
+      for (final placeData in placeList) {
+        final String name = placeData['name'];
+        final double latitude = placeData['latitude'];
+        final double longitude = placeData['longitude'];
+        final PlaceCategory category =
+            _getPlaceCategoryFromString(placeData['category']);
+
+        final Place place = Place(name, LatLng(latitude, longitude), category);
+        _selectedPlaces.add(place);
+
+        if (category == _selectedCategory) {
+          _markers.add(
+            Marker(
+              markerId: MarkerId(place.coordinates.toString()),
+              position: place.coordinates,
+              infoWindow: InfoWindow(
+                title: place.name,
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
+
+      setState(() {});
+    } else {
+      print('장소 목록 가져오기 실패: ${response.statusCode}');
     }
-    setState(() {});
   }
+
+  PlaceCategory _getPlaceCategoryFromString(String categoryString) {
+    if (categoryString == 'TrashCan') {
+      return PlaceCategory.TrashCan;
+    } else if (categoryString == 'Toilet') {
+      return PlaceCategory.Toilet;
+    } else if (categoryString == 'Smoke') {
+      return PlaceCategory.Smoke;
+    }
+    return PlaceCategory.TrashCan; // 기본값
+  }
+  // void _showPlaceMarkers() {
+  //   _markers.clear();
+  //   for (final place in _selectedPlaces) {
+  //     if (place.category == _selectedCategory) {
+  //       _markers.add(
+  //         Marker(
+  //           markerId: MarkerId(place.coordinates.toString()),
+  //           position: place.coordinates,
+  //           infoWindow: InfoWindow(
+  //             title: place.name,
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //   }
+  //   setState(() {});
+  // }
 
   void _showPlaceList() {
     final List<Place> categoryPlaces = _selectedPlaces
@@ -139,7 +220,8 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return Scaffold(
             appBar: AppBar(
-              title: Text("${_selectedCategory.toString().split('.').last} List"),
+              title:
+                  Text("${_selectedCategory.toString().split('.').last} List"),
             ),
             body: ListView.builder(
               itemCount: categoryPlaces.length,
@@ -204,7 +286,8 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 16.0,
             left: 16.0, // Added left spacing
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute buttons evenly
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween, // Distribute buttons evenly
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -260,7 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
 
                 final GoogleMapController controller = await _controller.future;
-                controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+                controller.animateCamera(
+                    CameraUpdate.newCameraPosition(cameraPosition));
 
                 print("현재 위도: ${value.latitude}, 현재 경도: ${value.longitude}");
 
