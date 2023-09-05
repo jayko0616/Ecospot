@@ -2,13 +2,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ecospot/loginPage/loginDB.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ecospot/screens/home_screen.dart';
-import 'package:ecospot/screens/register_screen.dart';
-import 'package:ecospot/screens/rank_screen.dart';
-import 'cameraPage/camera_screen.dart';
 import 'package:http/http.dart' as http;
 
 // 기본 홈
@@ -21,7 +17,7 @@ class MyAppPage extends StatefulWidget {
 
 class MyAppState extends State<MyAppPage> {
   String accountName = ''; // 사용자 이름을 저장할 변수
-  //String accountEmail = ''; // 사용자 이메일을 저장할 변수
+  String accountEmail = ''; // 사용자 이메일을 저장할 변수
   @override
   void initState() {
     super.initState();
@@ -32,13 +28,12 @@ class MyAppState extends State<MyAppPage> {
   // 사용자 정보를 가져오는 함수
   void loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String name =
-        prefs.getString('name') ?? ''; // 'name'은 데이터베이스에서 사용자 이름을 저장한 키
-    //String email = prefs.getString('email') ?? ''; // 'email'은 데이터베이스에서 사용자 이메일을 저장한 키
+    String? username = prefs.getString('username');
+    String? email = prefs.getString('email');
 
     setState(() {
-      accountName = name;
-      //accountEmail = email;
+      accountName = username!;
+      accountEmail = email!;
     });
   }
 
@@ -58,6 +53,8 @@ class MyAppState extends State<MyAppPage> {
 
     if (response.statusCode == 200) {
       await prefs.remove('token'); // 토큰 삭제
+      await prefs.remove('username'); // 토큰 삭제
+      await prefs.remove('email'); // 토큰 삭제
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginMainPage()),
@@ -115,12 +112,12 @@ class MyAppState extends State<MyAppPage> {
         backgroundColor: Color(0xFFC9C8C2),
         child: ListView(
           children: [
-            const UserAccountsDrawerHeader(
+            UserAccountsDrawerHeader(
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
               ),
-              accountName: Text("내이름"),
-              accountEmail: Text('내계정'),
+              accountName: Text('Account Name: $accountName'),
+              accountEmail: Text('Account Email: $accountEmail'),
               decoration: BoxDecoration(
                 color: Colors.green,
               ),
@@ -129,7 +126,7 @@ class MyAppState extends State<MyAppPage> {
               leading: const Icon(Icons.home),
               iconColor: Colors.teal,
               focusColor: Color(0xFF327035),
-              title: const Text('홈'),
+              title: const Text('지도'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -148,22 +145,8 @@ class MyAppState extends State<MyAppPage> {
                 //   context,
                 //   MaterialPageRoute(
                 //       builder: (context) =>
-                //           HttpWithDioScreen()), // 두 번째 페이지로 이동
+                //           rank()), // 두 번째 페이지로 이동
                 // );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.restore_from_trash),
-              iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
-              title: const Text('새로운 위치 등록'),
-              onTap: () {
-                cameraInit();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => RegisterPage()), // 두 번째 페이지로 이동
-                );
               },
             ),
             ListTile(

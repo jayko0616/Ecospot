@@ -78,6 +78,29 @@ class _LoginState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  // 로그인 설정
+  void _setLogin(String username, String email) async {
+    // 공유저장소에 유저 DB의 인덱스 저장
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username); // 서버에서 받은 사용자 이름 정보
+    await prefs.setString('email', email); // 서버에서 받은 사용자 이메일 정보
+    print(username);
+    print(email);
+    // 추가된 코드: 모든 토큰 출력
+    Set<String> keys = prefs.getKeys();
+    for (String key in keys) {
+      String value = prefs.getString(key) ?? '';
+      print('$key: $value');
+    }
+    // 메인 페이지로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyAppPage(),
+      ),
+    );
+  }
+
   // 자동 로그인 설정
   void _setAutoLogin(String token) async {
     // 공유저장소에 유저 DB의 인덱스 저장
@@ -202,7 +225,7 @@ class _LoginState extends State<LoginPage> {
                         print(loginCheck);
 
                         // 로그인 확인
-                        if (loginCheck == '-1') {
+                        if (loginCheck == null) {
                           print('로그인 실패');
                           showDialog(
                             context: context,
@@ -223,21 +246,13 @@ class _LoginState extends State<LoginPage> {
                           );
                         } else {
                           print('로그인 성공');
-
+                          _setLogin(loginCheck.username, loginCheck.email);
                           // 자동 로그인 확인
                           if (switchValue == true) {
-                            _setAutoLogin(loginCheck!);
+                            _setAutoLogin('auto');
                           } else {
                             _delAutoLogin();
                           }
-
-                          // 메인 페이지로 이동
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ),
-                          );
                         }
                       },
                       child: Text('로그인'),
