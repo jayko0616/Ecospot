@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:ecospot/mainPage.dart';
+import '../cameraPage/camera_screen.dart';
 
 enum PlaceCategory {
   TrashCan,
@@ -27,6 +29,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String accountName = ''; // 사용자 이름을 저장할 변수
+  //String accountEmail = ''; // 사용자 이메일을 저장할 변수
+
   Completer<GoogleMapController> _controller = Completer();
 
   static final CameraPosition _kGoogle = const CameraPosition(
@@ -55,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (context) {
         TextEditingController nameController = TextEditingController();
+        cameraInit();
         return AlertDialog(
           title: Text("Add Place"),
           content: Column(
@@ -85,6 +91,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (name.isNotEmpty && _selectedLocation != null) {
                     _addPlace(name, _selectedLocation!, _selectedCategory);
                     Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CameraPage()), // 두 번째 페이지로 이동
+                    );
                   }
                 },
                 child: Text("Add"),
@@ -98,26 +109,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _sendPlaceToServer(
       String name, LatLng location, PlaceCategory category) async {
-        final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
-        final response = await http.post(
-          Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(<String, dynamic>{
-            'name': name,
-            'latitude': location.latitude,
-            'longitude': location.longitude,
-            'category': category.toString().split('.').last, // Enum 값을 문자열로 변환
-          }),
-        );
+    final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+    final response = await http.post(
+      Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'name': name,
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+        'category': category.toString().split('.').last, // Enum 값을 문자열로 변환
+      }),
+    );
 
-        if (response.statusCode == 200) {
-          print('장소 등록 성공');
-        } else {
-          print('장소 등록 실패: ${response.statusCode}');
-        }
-      }
+    if (response.statusCode == 200) {
+      print('장소 등록 성공');
+    } else {
+      print('장소 등록 실패: ${response.statusCode}');
+    }
+  }
 
   void _addPlace(String name, LatLng location, PlaceCategory category) {
     final Place place = Place(name, location, category);
@@ -134,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Marker(
         markerId: MarkerId(location.toString()),
         position: location,
+        icon: BitmapDescriptor.defaultMarker,
       ),
     );
     setState(() {});
@@ -163,7 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final Place place = Place(name, LatLng(latitude, longitude), category);
         _selectedPlaces.add(place);
 
-        if (category == _selectedCategory) {
+        if (place.category == _selectedCategory &&
+            place.category == PlaceCategory.TrashCan) {
           _markers.add(
             Marker(
               markerId: MarkerId(place.coordinates.toString()),
@@ -171,6 +184,31 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
+              icon: BitmapDescriptor.defaultMarker,
+            ),
+          );
+        } else if (place.category == _selectedCategory &&
+            place.category == PlaceCategory.Toilet) {
+          _markers.add(
+            Marker(
+              markerId: MarkerId(place.coordinates.toString()),
+              position: place.coordinates,
+              infoWindow: InfoWindow(
+                title: place.name,
+              ),
+              icon: BitmapDescriptor.defaultMarker,
+            ),
+          );
+        } else if (place.category == _selectedCategory &&
+            place.category == PlaceCategory.Smoke) {
+          _markers.add(
+            Marker(
+              markerId: MarkerId(place.coordinates.toString()),
+              position: place.coordinates,
+              infoWindow: InfoWindow(
+                title: place.name,
+              ),
+              icon: BitmapDescriptor.defaultMarker,
             ),
           );
         }
@@ -320,6 +358,59 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Color(0xFFC9C8C2),
+        child: ListView(
+          children: [
+            UserAccountsDrawerHeader(
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
+              ),
+              accountName: Text(accountName),
+              accountEmail: Text('내계정'),
+              decoration: BoxDecoration(
+                color: Colors.green,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              iconColor: Colors.teal,
+              focusColor: Color(0xFF327035),
+              title: const Text('홈'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomeScreen()), // 두 번째 페이지로 이동
+                );
+              },
+            ),
+            // ListTile(
+            //   leading: const Icon(Icons.shopping_cart_rounded),
+            //   iconColor: Colors.teal,
+            //   focusColor: Color(0xFF327035),
+            //   title: const Text('랭킹'),
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) =>
+            //               HttpWithDioScreen()), // 두 번째 페이지로 이동
+            //     );
+            //   },
+            // ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              iconColor: Colors.teal,
+              focusColor: Color(0xFF327035),
+              title: const Text('로그아웃'),
+              onTap: () {
+                MyAppState().logout();
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
