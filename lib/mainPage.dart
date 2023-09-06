@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: use_build_context_synchronously, file_names
+
 import 'package:flutter/material.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,8 +17,8 @@ class MyAppPage extends StatefulWidget {
 }
 
 class MyAppState extends State<MyAppPage> {
-  String accountName = ''; // 사용자 이름을 저장할 변수
-  String accountEmail = ''; // 사용자 이메일을 저장할 변수
+  static String accountName = ''; // 사용자 이름을 저장할 변수
+  static String accountEmail = ''; // 사용자 이메일을 저장할 변수
   int? ranknum;
   String message = '';
 
@@ -106,14 +107,14 @@ class MyAppState extends State<MyAppPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('오류'),
-            content: Text('로그아웃 중에 문제가 발생했습니다.'),
+            title: const Text('오류'),
+            content: const Text('로그아웃 중에 문제가 발생했습니다.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('확인'),
+                child: const Text('확인'),
               ),
             ],
           );
@@ -149,13 +150,18 @@ class MyAppState extends State<MyAppPage> {
           )
         ],
       ),
-      body: Center(),
+      body: const Center(),
       drawer: Drawer(
         backgroundColor: Color(0xFFC9C8C2),
         child: ListView(
           children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
+            UserAccountsDrawerHeader(
+              currentAccountPicture: const CircleAvatar(
+                backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
+              ),
+              accountName: Text('Account Name: $accountName'),
+              accountEmail: Text('Account Email: $accountEmail'),
+              decoration: const BoxDecoration(
                 color: Colors.green,
               ),
               child: Column(
@@ -208,35 +214,49 @@ class MyAppState extends State<MyAppPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.home),
+              leading: const Icon(Icons.home_filled),
               iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
+              focusColor: const Color(0xFF327035),
+              title: const Text('홈'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyAppPage()), // 지도 페이지로 이동
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.map_outlined),
+              iconColor: Colors.teal,
+              focusColor: const Color(0xFF327035),
               title: const Text('지도'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HomeScreen()), // 두 번째 페이지로 이동
+                      builder: (context) => HomeScreen()), // 지도 페이지로 이동
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart_rounded),
               iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
+              focusColor: const Color(0xFF327035),
               title: const Text('랭킹'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RankScreen()), // 두 번째 페이지로 이동
+                      builder: (context) =>
+                          RankScreen()), // 랭킹 페이지로 이동
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
+              focusColor: const Color(0xFF327035),
               title: const Text('로그아웃'),
               onTap: () {
                 logout();

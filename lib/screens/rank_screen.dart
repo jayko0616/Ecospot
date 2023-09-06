@@ -14,14 +14,15 @@ class RankScreen extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Ranking'),
+          title: const Text('Ranking'),
+          backgroundColor: Colors.lightGreen,
         ),
         body: FutureBuilder<void>(
           future: storephotos.fetchPhotos(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               // 데이터가 로딩 중일 때 표시할 내용
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
               // 에러 발생 시 표시할 내용
               return Text('Error: ${snapshot.error}');

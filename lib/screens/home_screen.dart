@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ecospot/screens/rank_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,6 +10,7 @@ import '../cameraPage/camera_screen.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui; // ByteData와 ImageByteFormat를 사용하기 위한 import
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:ecospot/loginPage/loginMainPage.dart';
 
 enum PlaceCategory {
   TrashCan,
@@ -35,7 +37,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String accountName = ''; // 사용자 이름을 저장할 변수
-  //String accountEmail = ''; // 사용자 이메일을 저장할 변수
+  String accountEmail = ''; // 사용자 이메일을 저장할 변수
+
 
   Completer<GoogleMapController> _controller = Completer();
 
@@ -274,27 +277,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightGreen,
-        title: Text("Map"),
+        title: const Text("Map"),
         actions: [],
       ),
       body: Stack(
         children: [
-          Container(
-            child: SafeArea(
-              child: GoogleMap(
-                initialCameraPosition: _kGoogle,
-                markers: Set<Marker>.of(_markers),
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                compassEnabled: true,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
-                onTap: (LatLng location) {
-                  // 화면을 터치할 때마다 선택된 위치에 마커 표시
-                  _onMapTapped(location);
-                },
-              ),
+          SafeArea(
+            child: GoogleMap(
+              initialCameraPosition: _kGoogle,
+              markers: Set<Marker>.of(_markers),
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              compassEnabled: true,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              onTap: (LatLng location) {
+                // 화면을 터치할 때마다 선택된 위치에 마커 표시
+                _onMapTapped(location);
+              },
             ),
           ),
           Positioned(
@@ -312,16 +313,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                     _showPlaceMarkers();
                   },
-                  child: Text("TrashCan"),
                   style: ElevatedButton.styleFrom(
-                    primary: _selectedCategory == PlaceCategory.TrashCan
+                    backgroundColor: _selectedCategory == PlaceCategory.TrashCan
                         ? Colors.green // 선택된 카테고리인 경우 배경색을 초록색으로 설정
                         : Colors.grey, // 선택되지 않은 카테고리인 경우 배경색을 회색으로 설정
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
                     ),
-                    minimumSize: Size(120, 40),
+                    minimumSize: const Size(120, 40),
                   ),
+                  child: const Text("TrashCan"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -330,16 +331,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                     _showPlaceMarkers();
                   },
-                  child: Text("Toilet"),
                   style: ElevatedButton.styleFrom(
-                    primary: _selectedCategory == PlaceCategory.Toilet
+                    backgroundColor: _selectedCategory == PlaceCategory.Toilet
                         ? Colors.green
                         : Colors.grey,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
                     ),
-                    minimumSize: Size(120, 40),
+                    minimumSize: const Size(120, 40),
                   ),
+                  child: const Text("Toilet"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -348,16 +349,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                     _showPlaceMarkers();
                   },
-                  child: Text("Smoke"),
                   style: ElevatedButton.styleFrom(
-                    primary: _selectedCategory == PlaceCategory.Smoke
+                    backgroundColor: _selectedCategory == PlaceCategory.Smoke
                         ? Colors.green
                         : Colors.grey,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
                     ),
-                    minimumSize: Size(120, 40),
+                    minimumSize: const Size(120, 40),
                   ),
+                  child: const Text("Smoke"),
                 ),
               ],
             ),
@@ -365,24 +366,37 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: Color(0xFFC9C8C2),
+        backgroundColor: const Color(0xFFC9C8C2),
         child: ListView(
           children: [
             UserAccountsDrawerHeader(
-              currentAccountPicture: CircleAvatar(
+              currentAccountPicture: const CircleAvatar(
                 backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
               ),
-              accountName: Text(accountName),
-              accountEmail: Text('내계정'),
-              decoration: BoxDecoration(
+              accountName: Text('Account Name: ${MyAppState.accountName}'),
+              accountEmail: Text('Account Email: ${MyAppState.accountEmail}'),
+              decoration: const BoxDecoration(
                 color: Colors.green,
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.home),
+              leading: const Icon(Icons.home_filled),
               iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
+              focusColor: const Color(0xFF327035),
               title: const Text('홈'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyAppPage()), // 지도 페이지로 이동
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.map_outlined),
+              iconColor: Colors.teal,
+              focusColor: const Color(0xFF327035),
+              title: const Text('지도'),
               onTap: () {
                 Navigator.push(
                   context,
@@ -391,24 +405,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.shopping_cart_rounded),
-            //   iconColor: Colors.teal,
-            //   focusColor: Color(0xFF327035),
-            //   title: const Text('랭킹'),
-            //   onTap: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) =>
-            //               HttpWithDioScreen()), // 두 번째 페이지로 이동
-            //     );
-            //   },
-            // ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart_rounded),
+              iconColor: Colors.teal,
+              focusColor: const Color(0xFF327035),
+              title: const Text('랭킹'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          RankScreen()), // 랭킹 페이지로 이동
+                );
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.settings),
               iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
+              focusColor: const Color(0xFF327035),
               title: const Text('로그아웃'),
               onTap: () {
                 MyAppState().logout();
@@ -427,13 +441,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Marker(
                     markerId: MarkerId("2"),
                     position: LatLng(value.latitude, value.longitude),
-                    infoWindow: InfoWindow(
+                    infoWindow: const InfoWindow(
                       title: 'My Current Location',
                     ),
                   ),
                 );
 
-                CameraPosition cameraPosition = new CameraPosition(
+                CameraPosition cameraPosition = CameraPosition(
                   target: LatLng(value.latitude, value.longitude),
                   zoom: 16,
                 );
@@ -447,16 +461,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {});
               });
             },
-            child: Icon(Icons.location_searching),
             backgroundColor: Colors.teal,
+            child: const Icon(Icons.location_searching),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           FloatingActionButton(
             onPressed: () {
               _showAddPlaceDialog();
             },
-            child: Icon(Icons.add),
             backgroundColor: Colors.teal,
+            child: const Icon(Icons.add),
           ),
         ],
       ),
@@ -465,7 +479,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: HomeScreen(),
   ));
 }
