@@ -52,7 +52,8 @@ class MyAppState extends State<MyAppPage> {
   }
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
-    final apiUrl = 'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
+    final apiUrl =
+        'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -64,7 +65,7 @@ class MyAppState extends State<MyAppPage> {
           final Map<String, dynamic> data = dataList[0];
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
-          return [ranknum,message];
+          return [ranknum, message];
         } else {
           print('Empty data list received.');
           return null;
@@ -78,7 +79,6 @@ class MyAppState extends State<MyAppPage> {
       return null;
     }
   }
-
 
   Future<void> logout() async {
     final apiUrl =
@@ -230,8 +230,7 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          RankScreen()), // 랭킹 페이지로 이동
+                      builder: (context) => RankScreen()), // 랭킹 페이지로 이동
                 );
               },
             ),
