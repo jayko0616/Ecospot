@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:ecospot/cameraPage/image_sender.dart';
 
-
 late List<CameraDescription> _cameras;
 
 Future<void> cameraInit() async {
@@ -38,21 +37,18 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> _takePicture() async {
-    if (!controller.value.isInitialized|| _isShowingConfirmationDialog) {
+    if (!controller.value.isInitialized || _isShowingConfirmationDialog) {
       return;
     }
 
     try {
       final XFile file = await controller.takePicture();
 
-
       _showConfirmationDialog(file);
     } catch (e) {
       print('Error taking picture: $e');
     }
   }
-
-
 
   Future<void> _showConfirmationDialog(XFile imageFile) async {
     setState(() {
@@ -92,7 +88,6 @@ class _CameraPageState extends State<CameraPage> {
       },
     );
   }
-
 
   @override
   void dispose() {
