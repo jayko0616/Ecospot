@@ -1,12 +1,7 @@
-// import 'package:flutter/material.dart';
-// import 'package:ecospot/screens/rank_get.dart';
-// import 'package:get/get_state_manager/get_state_manager.dart';
-// import 'package:url_launcher/url_launcher_string.dart';
-
-import 'package:ecospot/mainPage.dart';
 import 'package:flutter/material.dart';
 import 'package:ecospot/screens/rank_get.dart';
 
+import '../mainPage.dart';
 import 'home_screen.dart';
 
 class RankScreen extends StatelessWidget {
@@ -14,6 +9,9 @@ class RankScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 랭킹 순위를 계산하여 리스트에 추가
+    storephotos.photos.sort((a, b) => b.ranknum.compareTo(a.ranknum));
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -30,16 +28,87 @@ class RankScreen extends StatelessWidget {
               // 에러 발생 시 표시할 내용
               return Text('Error: ${snapshot.error}');
             } else {
-              print("성공");
               // 데이터를 성공적으로 불러왔을 때 표시할 내용
               return ListView.builder(
                 controller: storephotos.scrollController,
                 itemCount: storephotos.photos.length,
                 itemBuilder: (context, index) {
                   final photo = storephotos.photos[index];
-                  return ListTile(
-                    title: Text(photo.username),
-                    subtitle: Text('Rank: ${photo.ranknum}'),
+                  final rank = index + 1;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300], // 흰색과 회색 중간색
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: ListTile(
+                        title: Row(
+                          children: [
+                            Container(
+                              width: 30.0,
+                              height: 30.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.lightGreen,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                rank.toString(),
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 10.0), // 간격 조절
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    photo.username,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                  Text(
+                                    'ID: ${photo.username}',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  if (photo.message != null && photo.message.isNotEmpty)
+                                    Container(
+                                      margin: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: EdgeInsets.all(10.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white38,
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      child: Text(
+                                        'Message: ${photo.message}',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                'Score: ${photo.ranknum}',
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                 },
               );
@@ -99,7 +168,8 @@ class RankScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const MyAppPage()), // 메인 페이지로 이동
+                      builder: (context) => const MyAppPage(),
+                    ),
                   );
                 },
               ),
@@ -112,7 +182,8 @@ class RankScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const HomeScreen()), // 지도 페이지로 이동
+                      builder: (context) => const HomeScreen(),
+                    ),
                   );
                 },
               ),
@@ -125,8 +196,8 @@ class RankScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            RankScreen()), // 랭킹 페이지로 이동
+                      builder: (context) => RankScreen(),
+                    ),
                   );
                 },
               ),
