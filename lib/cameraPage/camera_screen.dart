@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 late List<CameraDescription> _cameras;
 
 Future<void> cameraInit() async {
-  //카메라 초기화 함수
+  //카메라 초기화 함수j
   WidgetsFlutterBinding.ensureInitialized();
   _cameras = await availableCameras(); // 사용 가능한 카메라 확인
 }
@@ -78,7 +78,7 @@ class CameraPageState extends State<CameraPage> {
 
       // 지정한 경로에 사진 저장
       await File(file.path).copy('${directory.path}/${file.name}');
-    uploadImage(file);
+      uploadImage(file);
     } catch (e) {
       print('Error taking picture: $e');
     }
