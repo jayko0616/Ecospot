@@ -85,6 +85,7 @@ class _MemberRegisterState extends State<MemberRegisterPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: const Color(0xFFCBCAC1),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),

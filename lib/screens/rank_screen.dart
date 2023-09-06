@@ -1,18 +1,3 @@
-// // import 'package:flutter/material.dart';
-
-// // class RankPage extends StatelessWidget {
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Scaffold(
-// //       appBar: AppBar(
-// //         title: Text('랭킹'),
-// //       ),
-// //       body: Center(
-// //         child: Text('랭크페이지'),
-// //       ),
-// //     );
-// //   }
-// // }
 // import 'package:flutter/material.dart';
 // import 'package:ecospot/screens/rank_get.dart';
 // import 'package:get/get_state_manager/get_state_manager.dart';
