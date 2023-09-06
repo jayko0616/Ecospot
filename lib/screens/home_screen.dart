@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:ecospot/mainPage.dart';
 import '../cameraPage/camera_screen.dart';
+import 'dart:typed_data';
+import 'dart:ui' as ui; // ByteData와 ImageByteFormat를 사용하기 위한 import
+import 'package:flutter/services.dart' show rootBundle;
 
 enum PlaceCategory {
   TrashCan,
@@ -22,7 +25,9 @@ class Place {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -44,6 +49,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   LatLng? _selectedLocation;
   PlaceCategory _selectedCategory = PlaceCategory.TrashCan;
+
+  Future<BitmapDescriptor> _createCustomMarkerFromAsset(String assetName,
+      {double width = 8.0, double height = 8.0}) async {
+    final AssetImage assetImage = AssetImage(assetName);
+    final ImageConfiguration config = ImageConfiguration(
+      size: Size(width, height),
+    );
+
+    final Completer<BitmapDescriptor> completer = Completer<BitmapDescriptor>();
+    assetImage.resolve(config).addListener(
+        ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) async {
+      final ByteData byteData = await imageInfo.image.toByteData(
+        format: ui.ImageByteFormat.png,
+      ) as ByteData;
+
+      final Uint8List uint8List = byteData.buffer.asUint8List();
+      final BitmapDescriptor bitmapDescriptor =
+          BitmapDescriptor.fromBytes(uint8List);
+      completer.complete(bitmapDescriptor);
+    }));
+
+    return completer.future;
+  }
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -174,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final double latitude = placeData['latitude'];
         final double longitude = placeData['longitude'];
         final PlaceCategory category =
-        _getPlaceCategoryFromString(placeData['category']);
+            _getPlaceCategoryFromString(placeData['category']);
 
         final Place place = Place(name, LatLng(latitude, longitude), category);
         _selectedPlaces.add(place);
@@ -188,7 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                'assets/images/trashcanIcon.png',
+              ),
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -200,7 +230,9 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                  'assets/images/toiletIcon.png',
+              )
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -212,7 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                  'assets/images/smokeIcon.png',
+              )
             ),
           );
         }
@@ -269,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 16.0, // Added left spacing
             child: Row(
               mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // Distribute buttons evenly
+                  MainAxisAlignment.spaceBetween, // Distribute buttons evenly
               children: [
                 ElevatedButton(
                   onPressed: () {
