@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ecospot/screens/home_screen.dart';
+import 'package:ecospot/screens/rank_screen.dart';
 import 'package:http/http.dart' as http;
 
 // 기본 홈
@@ -141,12 +142,12 @@ class MyAppState extends State<MyAppPage> {
               focusColor: Color(0xFF327035),
               title: const Text('랭킹'),
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) =>
-                //           rank()), // 두 번째 페이지로 이동
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          RankScreen()), // 두 번째 페이지로 이동
+                );
               },
             ),
             ListTile(
