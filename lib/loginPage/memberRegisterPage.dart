@@ -1,10 +1,11 @@
 // ignore_for_file: use_build_context_synchronously, file_names, avoid_print
 
+import 'package:ecospot/mainPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:ecospot/screens/home_screen.dart';
+import 'package:ecospot/loginPage/loginMainPage.dart';
 
 class MemberRegisterPage extends StatefulWidget {
   const MemberRegisterPage({Key? key}) : super(key: key);
@@ -51,7 +52,7 @@ class _MemberRegisterState extends State<MemberRegisterPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen()), // 두 번째 페이지로 이동
+                        builder: (context) => TokenCheck()), // 두 번째 페이지로 이동
                   );
                 },
               ),
