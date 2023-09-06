@@ -21,6 +21,9 @@ class MyAppState extends State<MyAppPage> {
   static String accountEmail = ''; // 사용자 이메일을 저장할 변수
   static int? ranknum;
   static String message = '';
+  static String _selectedProfileImage = 'assets/images/panda.png'; // 기본 프로필 이미지
+
+  final TextEditingController messageController = TextEditingController();
 
   @override
   void initState() {
@@ -40,16 +43,16 @@ class MyAppState extends State<MyAppPage> {
       accountEmail = email ?? '';
     });
 
-    if (username != null) {
-      List<dynamic>? userRank = await getUserRanknum(username);
-      if (userRank != null) {
-        setState(() {
-          ranknum = userRank[0];
-          message = userRank[1] ?? '';
-        });
-      }
-    }
+  if (username != null) {
+  List<dynamic>? userRank = await getUserRanknum(username);
+  if (userRank != null) {
+  setState(() {
+  ranknum = userRank[0];
+  message = userRank[1] ?? '';
+  });
   }
+  }
+}
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
     final apiUrl = 'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
@@ -150,7 +153,53 @@ class MyAppState extends State<MyAppPage> {
           )
         ],
       ),
-      body: const Center(),
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Column(
+              children: [CircleAvatar(
+              radius: 50,
+              backgroundImage: AssetImage(_selectedProfileImage),
+              backgroundColor: Colors.lightGreenAccent,
+              ),
+                const SizedBox(height: 16.0),
+                DropdownButton<String>(
+                  value: _selectedProfileImage,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedProfileImage = newValue!;
+                    });
+                    },
+              items: <String>[
+                'assets/images/panda.png',
+                'assets/images/penguin.png',
+                'assets/images/bear.png',
+                'assets/images/polarbear.png',
+                'assets/images/wolf.png',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset(value),
+                  ),
+                );
+              }).toList(),
+            ),
+              ],
+            ),
+            const SizedBox(height: 16.0),
+
+
+            Text('${accountName}'),
+            Text('${accountEmail}'),
+            Text('점수: ${ranknum}'),
+            Text('소개: 사용자 소개 문구'),
+          ],
+        ),
+      ),
       drawer: Drawer(
         backgroundColor: Color(0xFFC9C8C2),
         child: ListView(
