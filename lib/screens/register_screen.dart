@@ -16,12 +16,11 @@ class RegisterPage extends StatelessWidget {
           children: [
             Text('새로운 장소 등록'),
             SizedBox(
-
                 height:
                     20), // Adding some space between the text and the button
             ElevatedButton(
               style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.teal),
+                backgroundColor: MaterialStateProperty.all(Colors.teal),
               ),
               onPressed: () {
                 Navigator.push(

@@ -1,3 +1,8 @@
+// import 'package:flutter/material.dart';
+// import 'package:ecospot/screens/rank_get.dart';
+// import 'package:get/get_state_manager/get_state_manager.dart';
+// import 'package:url_launcher/url_launcher_string.dart';
+
 import 'package:flutter/material.dart';
 import 'package:ecospot/screens/rank_get.dart';
 

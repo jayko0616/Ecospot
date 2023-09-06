@@ -25,7 +25,9 @@ class Place {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -49,23 +51,26 @@ class _HomeScreenState extends State<HomeScreen> {
   PlaceCategory _selectedCategory = PlaceCategory.TrashCan;
 
   Future<BitmapDescriptor> _createCustomMarkerFromAsset(String assetName,
-      {int width = 64, int height = 64}) async {
-    final ByteData byteData = await rootBundle.load(assetName);
-    final Uint8List uint8List = byteData.buffer.asUint8List();
-    final ui.Codec codec =
-    await ui.instantiateImageCodec(uint8List); // dart:ui의 함수 사용
-    final ui.FrameInfo frameInfo = await codec.getNextFrame();
-    final ByteData? byteDataWithSize = await frameInfo.image.toByteData(
-      format: ui.ImageByteFormat.png, // 이미지를 원하는 형식으로 변환 (기본적으로 png 사용)
+      {double width = 8.0, double height = 8.0}) async {
+    final AssetImage assetImage = AssetImage(assetName);
+    final ImageConfiguration config = ImageConfiguration(
+      size: Size(width, height),
     );
 
-    if (byteDataWithSize != null) {
-      final Uint8List resizedUint8List = byteDataWithSize.buffer.asUint8List();
-      return BitmapDescriptor.fromBytes(resizedUint8List);
-    } else {
-      // 오류 처리 코드
-      return BitmapDescriptor.defaultMarker;
-    }
+    final Completer<BitmapDescriptor> completer = Completer<BitmapDescriptor>();
+    assetImage.resolve(config).addListener(
+        ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) async {
+      final ByteData byteData = await imageInfo.image.toByteData(
+        format: ui.ImageByteFormat.png,
+      ) as ByteData;
+
+      final Uint8List uint8List = byteData.buffer.asUint8List();
+      final BitmapDescriptor bitmapDescriptor =
+          BitmapDescriptor.fromBytes(uint8List);
+      completer.complete(bitmapDescriptor);
+    }));
+
+    return completer.future;
   }
 
   Future<Position> getUserCurrentLocation() async {
@@ -197,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final double latitude = placeData['latitude'];
         final double longitude = placeData['longitude'];
         final PlaceCategory category =
-        _getPlaceCategoryFromString(placeData['category']);
+            _getPlaceCategoryFromString(placeData['category']);
 
         final Place place = Place(name, LatLng(latitude, longitude), category);
         _selectedPlaces.add(place);
@@ -212,7 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: place.name,
               ),
               icon: await _createCustomMarkerFromAsset(
-                  'assets/images/trashcanIcon.png'),
+                'assets/images/trashcanIcon.png',
+              ),
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -225,7 +231,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: place.name,
               ),
               icon: await _createCustomMarkerFromAsset(
-                  'assets/images/toiletIcon.png'),
+                  'assets/images/toiletIcon.png',
+              )
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -238,7 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: place.name,
               ),
               icon: await _createCustomMarkerFromAsset(
-                  'assets/images/smokeIcon.png'),
+                  'assets/images/smokeIcon.png',
+              )
             ),
           );
         }
@@ -295,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 16.0, // Added left spacing
             child: Row(
               mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // Distribute buttons evenly
+                  MainAxisAlignment.spaceBetween, // Distribute buttons evenly
               children: [
                 ElevatedButton(
                   onPressed: () {
