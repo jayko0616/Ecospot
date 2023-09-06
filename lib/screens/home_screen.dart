@@ -232,8 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               icon: await _createCustomMarkerFromAsset(
                   'assets/images/toiletIcon.png',
-                  width: 4.0,
-                  height: 4.0),
+              )
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -247,8 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               icon: await _createCustomMarkerFromAsset(
                   'assets/images/smokeIcon.png',
-                  width: 4.0,
-                  height: 4.0),
+              )
             ),
           );
         }

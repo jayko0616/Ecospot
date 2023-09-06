@@ -1,67 +1,51 @@
-// import 'package:dio/dio.dart';
-// import 'package:flutter/material.dart';
-// import 'package:ecospot/config/userinfo.dart';
-// import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-// class HttpWithDioGetx extends GetxController {
-//   final Dio _dio = Dio();
-//   ScrollController scrollController = ScrollController();
-//   List<PiscumPhotoModel> photos = [];
-//   int currentPageNo = 1;
-//   bool isAdd = false;
+class PiscumPhotoModel {
+  final String username;
+  final int ranknum;
+  final String message;
 
-//   Future<void> started() async {
-//     await _getPhotos();
-//   }
+  PiscumPhotoModel(this.username, this.ranknum, this.message);
+}
 
-//   Future<void> _morePhotos() async {
-//     if (!isAdd) {
-//       isAdd = true;
-//       update();
-//       List<PiscumPhotoModel> _data = await _fetchPost(pageNo: currentPageNo);
-//       Future.delayed(const Duration(milliseconds: 1000), () {
-//         photos.addAll(_data);
-//         currentPageNo = currentPageNo + 1;
-//         isAdd = false;
-//         update();
-//       });
-//     }
-//   }
+class Storephotos {
+  ScrollController scrollController = ScrollController();
+  List<PiscumPhotoModel> photos = [];
 
-//   Future<void> _getPhotos() async {
-//     photos = await _fetchPost(pageNo: currentPageNo);
-//     currentPageNo = 2;
-//     update();
-//   }
+  Future<void> fetchPhotos() async {
+    final apiUrl = 'http://10.0.2.2:8080/spot/load'; // API 엔드포인트를 여기에 입력하세요.
 
-//   Future<List<PiscumPhotoModel>> _fetchPost({
-//     required int pageNo,
-//   }) async {
-//     try {
-//       final _response =
-//           await _dio.get("https://picsum.photos/v2/list?page=$pageNo&limit=10");
-//       if (_response.statusCode == 200) {
-//         List<dynamic> _fromData = _response.data as List<dynamic>;
-//         List<PiscumPhotoModel> _data = _fromData
-//             .map((e) => PiscumPhotoModel.fromJson(e as Map<String, dynamic>))
-//             .toList();
-//         return _data;
-//       } else {
-//         return [];
-//       }
-//     } catch (error) {
-//       return [];
-//     }
-//   }
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
 
-//   @override
-//   void onInit() {
-//     scrollController.addListener(() {
-//       if (scrollController.position.maxScrollExtent * 0.85 <
-//           scrollController.position.pixels) {
-//         _morePhotos();
-//       }
-//     });
-//     super.onInit();
-//   }
-// }
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<PiscumPhotoModel> fetchedPhotos = data
+            .map((item) => PiscumPhotoModel(
+          item['username'],
+          item['ranknum'],
+          item['message']?? '',
+        ))
+            .toList();
+
+        // ranknum을 기준으로 내림차순 정렬
+        fetchedPhotos.sort((a, b) => b.ranknum.compareTo(a.ranknum));
+
+        // photos 리스트에 저장
+        photos = fetchedPhotos;
+
+        // 데이터가 업데이트되었음을 알려줌
+        scrollController.notifyListeners();
+      } else {
+        // 에러 처리
+        throw Exception('Failed to load photos');
+      }
+    } catch (error) {
+      // 예외 처리
+      print('Error: $error');
+    }
+  }
+}
+
