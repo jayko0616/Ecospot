@@ -369,14 +369,44 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFC9C8C2),
         child: ListView(
           children: [
-            UserAccountsDrawerHeader(
-              currentAccountPicture: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
-              ),
-              accountName: Text('Account Name: ${MyAppState.accountName}'),
-              accountEmail: Text('Account Email: ${MyAppState.accountEmail}'),
+            DrawerHeader(
               decoration: const BoxDecoration(
                 color: Colors.green,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CircleAvatar(
+                    backgroundImage:
+                    AssetImage('assets/images/ecospotNewLogo.png'),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    MyAppState.accountName,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    MyAppState.accountEmail,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  Text(
+                    '점수: ${MyAppState.ranknum ?? 0}',
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  Text(
+                    '소개: ${MyAppState.message ?? ''}',
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
               ),
             ),
             ListTile(

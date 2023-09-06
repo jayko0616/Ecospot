@@ -19,8 +19,8 @@ class MyAppPage extends StatefulWidget {
 class MyAppState extends State<MyAppPage> {
   static String accountName = ''; // 사용자 이름을 저장할 변수
   static String accountEmail = ''; // 사용자 이메일을 저장할 변수
-  int? ranknum;
-  String message = '';
+  static int? ranknum;
+  static String message = '';
 
   @override
   void initState() {
@@ -155,32 +155,27 @@ class MyAppState extends State<MyAppPage> {
         backgroundColor: Color(0xFFC9C8C2),
         child: ListView(
           children: [
-            UserAccountsDrawerHeader(
-              currentAccountPicture: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/ecospotNewLogo.png'),
-              ),
-              accountName: Text('Account Name: $accountName'),
-              accountEmail: Text('Account Email: $accountEmail'),
+            DrawerHeader(
               decoration: const BoxDecoration(
                 color: Colors.green,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     backgroundImage:
                         AssetImage('assets/images/ecospotNewLogo.png'),
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Text(
-                    '$accountName',
-                    style: TextStyle(
+                    '${accountName}',
+                    style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    '$accountEmail',
+                    '${accountEmail}',
                     style: TextStyle(
                       fontSize: 14.0,
                     ),
@@ -201,19 +196,6 @@ class MyAppState extends State<MyAppPage> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.home),
-              iconColor: Colors.teal,
-              focusColor: Color(0xFF327035),
-              title: const Text('홈'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MyAppPage()), // 두 번째 페이지로 이동
-                );
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.home_filled),
               iconColor: Colors.teal,
               focusColor: const Color(0xFF327035),
@@ -222,7 +204,7 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MyAppPage()), // 지도 페이지로 이동
+                      builder: (context) => MyAppPage()), // 메인 페이지로 이동
                 );
               },
             ),
