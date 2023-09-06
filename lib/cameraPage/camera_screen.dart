@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:ecospot/cameraPage/image_sender.dart';
 import 'package:flutter/material.dart';
