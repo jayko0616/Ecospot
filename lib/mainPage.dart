@@ -59,7 +59,8 @@ class MyAppState extends State<MyAppPage> {
   }
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
-    final apiUrl = 'http://10.0.2.2:8080/spot/pick?username=$username';
+    final apiUrl =
+        'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
