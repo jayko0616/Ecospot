@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'EcoSpot',
-      home: RankScreen(),
+      home: TokenCheck(),
     );
   }
 }
