@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:ecospot/mainPage.dart';
 import '../cameraPage/camera_screen.dart';
+import 'dart:typed_data';
+import 'dart:ui' as ui; // ByteData와 ImageByteFormat를 사용하기 위한 import
+import 'package:flutter/services.dart' show rootBundle;
 
 enum PlaceCategory {
   TrashCan,
@@ -44,6 +47,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   LatLng? _selectedLocation;
   PlaceCategory _selectedCategory = PlaceCategory.TrashCan;
+
+  Future<BitmapDescriptor> _createCustomMarkerFromAsset(String assetName,
+      {int width = 64, int height = 64}) async {
+    final ByteData byteData = await rootBundle.load(assetName);
+    final Uint8List uint8List = byteData.buffer.asUint8List();
+    final ui.Codec codec =
+    await ui.instantiateImageCodec(uint8List); // dart:ui의 함수 사용
+    final ui.FrameInfo frameInfo = await codec.getNextFrame();
+    final ByteData? byteDataWithSize = await frameInfo.image.toByteData(
+      format: ui.ImageByteFormat.png, // 이미지를 원하는 형식으로 변환 (기본적으로 png 사용)
+    );
+
+    if (byteDataWithSize != null) {
+      final Uint8List resizedUint8List = byteDataWithSize.buffer.asUint8List();
+      return BitmapDescriptor.fromBytes(resizedUint8List);
+    } else {
+      // 오류 처리 코드
+      return BitmapDescriptor.defaultMarker;
+    }
+  }
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -188,7 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                  'assets/images/trashcanIcon.png'),
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -200,7 +224,8 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                  'assets/images/toiletIcon.png'),
             ),
           );
         } else if (place.category == _selectedCategory &&
@@ -212,7 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
               infoWindow: InfoWindow(
                 title: place.name,
               ),
-              icon: BitmapDescriptor.defaultMarker,
+              icon: await _createCustomMarkerFromAsset(
+                  'assets/images/smokeIcon.png'),
             ),
           );
         }
