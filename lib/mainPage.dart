@@ -16,10 +16,13 @@ class MyAppPage extends StatefulWidget {
 class MyAppState extends State<MyAppPage> {
   static String accountName = '';
   static String accountEmail = '';
-  static int ranknum=0;
+  static int ranknum = 0;
+  static String userRankName = '새싹';
+  static String userRankImage = 'assets/images/sprout.png';
   static String message = '';
   static String _selectedProfileImage = 'assets/images/panda.png';
   String? userIntroduction = '';
+
 
   final TextEditingController messageController = TextEditingController();
   @override
@@ -77,6 +80,25 @@ class MyAppState extends State<MyAppPage> {
     } catch (error) {
       print('Error: $error');
       return null;
+    }
+  }
+
+  String? getRankImage(int rankNum) {
+    if (rankNum < 100) {
+      userRankName = '새싹';
+      return 'assets/images/sprout.png';
+    } else if (rankNum < 200) {
+      userRankName = '묘목';
+      return 'assets/images/willow.png';
+    } else if (rankNum < 300) {
+      userRankName = '나무';
+      return 'assets/images/tree.png';
+    } else if (rankNum < 400) {
+      userRankName = '꽃나무';
+      return 'assets/images/sakura.png';
+    } else {
+      userRankName = '숲';
+      return 'assets/images/forest.png';
     }
   }
 
@@ -214,7 +236,7 @@ class MyAppState extends State<MyAppPage> {
           Card(
             margin: const EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
-              // 경계는 네모모양
+              // 경계는 네모 모양
               borderRadius: BorderRadius.circular(16.0), // Radius는 16정도로.
             ),
             elevation: 4.0, // 그림자 깊이
@@ -242,7 +264,7 @@ class MyAppState extends State<MyAppPage> {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: SizedBox(
-                        width: 45,
+                        width: 50,
                         height: 15,
                         child: Text(imageText,
                           style: const TextStyle(fontSize: 14),
@@ -272,8 +294,6 @@ class MyAppState extends State<MyAppPage> {
                   alignment: Alignment.center,
                   padding: EdgeInsets.only(left: 20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                     Text('${accountName}', style: const TextStyle(
                         color: Colors.teal,
@@ -284,26 +304,110 @@ class MyAppState extends State<MyAppPage> {
                         color: Colors.black,
                         fontSize: 15),),
                       const SizedBox(height: 10),
-                    Text('소개: ${message}', style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold),),
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              final TextEditingController tempIntroductionController =
+                              TextEditingController(text: userIntroduction);
+                              return AlertDialog(
+                                title: const Text('소개 편집'),
+                                content: TextField(
+                                  controller: tempIntroductionController,
+                                  maxLength: 30,
+                                  decoration: const InputDecoration(
+                                    labelText: '30자 이내의 소개를 입력하세요',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      String introduction = tempIntroductionController.text;
+
+                                      String name = accountName;
+                                      int rank = ranknum;
+
+                                      await NewMessage(name,rank, introduction);
+                                      Navigator.of(context).pop();
+
+                                    },
+                                    child: const Text('확인'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('취소'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Text('소개: ${message ?? ''}',
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+
+                      ),
                     ],
                   )
                 )
               ],
             ),
-    ),
+          ),
+          Container(
+              margin: const EdgeInsets.all(10),
+              width: 30,
+              height: 25,
+              child: const Text('랭킹', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+          ),
             Card(
               margin: const EdgeInsets.all(10), 
-              shape: RoundedRectangleBorder(// 경계는 네모모양
-                borderRadius: BorderRadius.circular(16.0), // Radius는 16정도로.
-              ), 
-              elevation: 4.0, // 그림자 깊이
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              elevation: 4.0,
               color: const Color(0xA5E5E1D4),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  //Text()
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Image.asset('${getRankImage(ranknum)}',
+                            width: 50,
+                            height: 50),
+                        Text('${userRankName}', style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold))
+                      ]
+                    ),
+                  ),
+                  const SizedBox(width: 50),
+                  Container(
+                      padding: const EdgeInsets.all(20),
+                        child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${ranknum ?? 0}',
+                            style: const TextStyle(fontSize: 30, color:Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 5),
+                            child: const Text('점수',
+                              style: TextStyle(fontSize: 16, color: Colors.blueGrey, fontWeight: FontWeight.w400),
+                            ),
+                          )
+                        ],
+                        ),
+                  ),
                 ],
               )
             ),
@@ -321,9 +425,14 @@ class MyAppState extends State<MyAppPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CircleAvatar(
-                    backgroundImage:
-                    AssetImage('assets/images/ecospotNewLogo.png'),
+                  CircleAvatar(
+                    backgroundColor: const Color(0xFFC6FF89),
+                    child: ClipOval(
+                      child: Image.asset(_selectedProfileImage,
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.contain)
+                    )
                   ),
                   const SizedBox(height: 8.0),
                   Text(
@@ -335,13 +444,13 @@ class MyAppState extends State<MyAppPage> {
                   ),
                   Text(
                     '${accountEmail}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14.0,
                     ),
                   ),
                   Text(
                     '점수: ${ranknum ?? 0}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14.0,
                     ),
                   ),
@@ -387,7 +496,7 @@ class MyAppState extends State<MyAppPage> {
                       );
                     },
                     child: Text('소개: ${message ?? ''}',
-                      style: TextStyle(
+                      style: const TextStyle(
                       fontSize: 14.0,),
                     ),
 
@@ -403,7 +512,7 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MyAppPage()), // 메인 페이지로 이동
+                      builder: (context) => const MyAppPage()), // 메인 페이지로 이동
                 );
               },
             ),
