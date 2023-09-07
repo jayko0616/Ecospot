@@ -19,6 +19,7 @@ class MyAppState extends State<MyAppPage> {
   static int ranknum = 0;
   static String userRankName = '새싹';
   static String userRankImage = 'assets/images/sprout.png';
+
   static String message = '';
   static String _selectedProfileImage = 'assets/images/panda.png';
   String? userIntroduction = '';
@@ -68,7 +69,7 @@ class MyAppState extends State<MyAppPage> {
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
           final String? _selectedProfileImage = data['image'];
-          return [ranknum, message,_selectedProfileImage];
+          return [ranknum, message, _selectedProfileImage];
         } else {
           print('Empty data list received.');
           return null;
@@ -105,7 +106,7 @@ class MyAppState extends State<MyAppPage> {
   Future<void> NewMessage(String username, int ranknum, String message) async {
     final Map<String, dynamic> requestBody = {
       'username': username,
-      'ranknum' : ranknum,
+      'ranknum': ranknum,
       'message': message,
     };
     final response = await http.post(
@@ -124,10 +125,11 @@ class MyAppState extends State<MyAppPage> {
       print('Failed to update message');
     }
   }
+
   Future<void> imagechange(String username, String image) async {
     final Map<String, dynamic> requestBody = {
       'username': username,
-      'image' : image,
+      'image': image,
     };
     final response = await http.post(
       Uri.parse('http://172.20.10.2:8080/spot/updateimage'),
@@ -138,7 +140,7 @@ class MyAppState extends State<MyAppPage> {
 
     if (response.statusCode == 200) {
       setState(() {
-        _selectedProfileImage=image;
+        _selectedProfileImage = image;
       });
       print('Message updated successfully');
     } else {
@@ -189,15 +191,15 @@ class MyAppState extends State<MyAppPage> {
   }
 
   String? stringConverter(String imgPath) {
-    if (imgPath =='assets/images/panda.png') {
+    if (imgPath == 'assets/images/panda.png') {
       return 'panda';
-    } else if (imgPath =='assets/images/penguin.png') {
+    } else if (imgPath == 'assets/images/penguin.png') {
       return 'penquin';
-    } else if (imgPath =='assets/images/bear.png') {
+    } else if (imgPath == 'assets/images/bear.png') {
       return 'bear';
-    } else if (imgPath =='assets/images/polarbear.png') {
+    } else if (imgPath == 'assets/images/polarbear.png') {
       return 'polar bear';
-    } else if (imgPath =='assets/images/wolf.png') {
+    } else if (imgPath == 'assets/images/wolf.png') {
       return 'wolf';
     }
   }
@@ -228,11 +230,11 @@ class MyAppState extends State<MyAppPage> {
         padding: const EdgeInsets.all(10),
         children: [
           Container(
-            margin: const EdgeInsets.all(10),
-            width: 30,
-            height: 25,
-            child: const Text('나의 프로필 카드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
-          ),
+              margin: const EdgeInsets.all(10),
+              width: 30,
+              height: 25,
+              child: const Text('나의 프로필 카드',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
           Card(
             margin: const EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
@@ -241,8 +243,8 @@ class MyAppState extends State<MyAppPage> {
             ),
             elevation: 4.0, // 그림자 깊이
             color: const Color(0xA5E5E1D4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: EdgeInsets.only(left: 15),
@@ -273,8 +275,8 @@ class MyAppState extends State<MyAppPage> {
                     );
                   }).toList(),
                 ),
-                ),
 
+                ),
                 Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(15.0),
@@ -283,14 +285,11 @@ class MyAppState extends State<MyAppPage> {
                       backgroundColor: const Color(0xFFC6FF89),
                       child: ClipOval(
                           child: Image.asset(_selectedProfileImage,
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.contain)
-                      )
-                  ),
+                              width: 150, height: 150, fit: BoxFit.contain))),
                 ),
                 const SizedBox(height: 16.0),
                 Container(
+
                   alignment: Alignment.center,
                   padding: EdgeInsets.only(left: 20),
                   child: Column(
@@ -352,6 +351,7 @@ class MyAppState extends State<MyAppPage> {
                               fontWeight: FontWeight.bold),
                         ),
 
+
                       ),
                     ],
                   )
@@ -409,9 +409,7 @@ class MyAppState extends State<MyAppPage> {
                         ),
                   ),
                 ],
-              )
-            ),
-
+              )),
         ],
       ),
       drawer: Drawer(
@@ -453,34 +451,37 @@ class MyAppState extends State<MyAppPage> {
                     style: const TextStyle(
                       fontSize: 14.0,
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          final TextEditingController tempIntroductionController =
-                          TextEditingController(text: userIntroduction);
-                          return AlertDialog(
-                            title: const Text('소개 편집'),
-                            content: TextField(
-                              controller: tempIntroductionController,
-                              maxLength: 30,
-                              decoration: const InputDecoration(
-                                labelText: '30자 이내의 소개를 입력하세요',
+                    Text(
+                      '점수: ${ranknum ?? 0}',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            final TextEditingController
+                                tempIntroductionController =
+                                TextEditingController(text: userIntroduction);
+                            return AlertDialog(
+                              title: const Text('소개 편집'),
+                              content: TextField(
+                                controller: tempIntroductionController,
+                                maxLength: 30,
+                                decoration: const InputDecoration(
+                                  labelText: '30자 이내의 소개를 입력하세요',
+                                ),
                               ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () async {
-                                  String introduction = tempIntroductionController.text;
+                              actions: [
+                                TextButton(
+                                  onPressed: () async {
+                                    String introduction =
+                                        tempIntroductionController.text;
 
-                                  String name = accountName;
-                                  int rank = ranknum;
-
-                                  await NewMessage(name,rank, introduction);
-                                  Navigator.of(context).pop();
-
+                                    String name = accountName;
+                                    int rank = ranknum;
                                 },
                                 child: const Text('확인'),
                               ),
@@ -498,11 +499,10 @@ class MyAppState extends State<MyAppPage> {
                     child: Text('소개: ${message ?? ''}',
                       style: const TextStyle(
                       fontSize: 14.0,),
-                    ),
 
-                  ),
-              ],)
-            ),
+                    ),
+                  ],
+                )),
             ListTile(
               leading: const Icon(Icons.home_filled),
               iconColor: Colors.teal,

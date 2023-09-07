@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:ecospot/cameraPage/image_sender.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../screens/home_screen.dart';
 
 late List<CameraDescription> _cameras;
 
@@ -45,6 +48,7 @@ class _CameraPageState extends State<CameraPage> {
       final XFile file = await controller.takePicture();
 
       _showConfirmationDialog(file);
+
     } catch (e) {
       print('Error taking picture: $e');
     }
@@ -54,6 +58,7 @@ class _CameraPageState extends State<CameraPage> {
     setState(() {
       _isShowingConfirmationDialog = true;
     });
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -64,15 +69,25 @@ class _CameraPageState extends State<CameraPage> {
           actions: [
             TextButton(
               onPressed: () async {
-                // 여기에 장소 등록 로직 추가
-                await uploadImage(File(imageFile.path));
+
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                double latitude = prefs.getDouble('latitude')!;
+                double longitude = prefs.getDouble('longitude')!;
+                await uploadImage(File(imageFile.path),latitude,longitude);
                 Navigator.of(context).pop(); // 다이얼로그 닫기
 
                 setState(() {
                   _isShowingConfirmationDialog = false;
                 });
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                  ),
+                );
+
               },
               child: Text('등록'),
+
             ),
             TextButton(
               onPressed: () {
@@ -80,6 +95,11 @@ class _CameraPageState extends State<CameraPage> {
                 setState(() {
                   _isShowingConfirmationDialog = false;
                 });
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                  ),
+                );
               },
               child: Text('취소'),
             ),
