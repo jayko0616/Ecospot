@@ -6,11 +6,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:ecospot/mainPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../cameraPage/camera_screen.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui; // ByteData와 ImageByteFormat를 사용하기 위한 import
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:ecospot/loginPage/loginMainPage.dart';
 
 enum PlaceCategory {
   TrashCan,
@@ -86,6 +85,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return await Geolocator.getCurrentPosition();
   }
 
+  Future<void> saveUserLocationToPrefs() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('latitude', position.latitude);
+      await prefs.setDouble('longitude', position.longitude);
+
+      print('Location saved to preferences');
+    } catch (e) {
+      print('Error getting or saving location: $e');
+    }
+  }
+
   void _showAddPlaceDialog() {
     showDialog(
       context: context,
@@ -121,11 +136,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   String name = nameController.text;
                   if (name.isNotEmpty && _selectedLocation != null) {
                     _addPlace(name, _selectedLocation!, _selectedCategory);
+
+                    // 위치 정보를 저장
+                    saveUserLocationToPrefs();
+
                     Navigator.of(context).pop();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CameraPage()), // 두 번째 페이지로 이동
+                        builder: (context) => CameraPage(),
+                      ),
                     );
                   }
                 },
