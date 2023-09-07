@@ -44,6 +44,7 @@ class MyAppState extends State<MyAppPage> {
         setState(() {
           ranknum = userRank[0] ?? 0;
           message = userRank[1] ?? '';
+          _selectedProfileImage = userRank[2] ?? '';
         });
       }
     }
@@ -63,7 +64,8 @@ class MyAppState extends State<MyAppPage> {
           final Map<String, dynamic> data = dataList;
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
-          return [ranknum, message];
+          final String? _selectedProfileImage = data['image'];
+          return [ranknum, message,_selectedProfileImage];
         } else {
           print('Empty data list received.');
           return null;
@@ -84,19 +86,37 @@ class MyAppState extends State<MyAppPage> {
       'ranknum' : ranknum,
       'message': message,
     };
-    print(username);
-    print(ranknum);
-    print(message);
     final response = await http.post(
       Uri.parse('http://172.20.10.2:8080/spot/updateMessage'),
       // Spring Boot API 엔드포인트 주소로 변경
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode(requestBody),
     );
 
     if (response.statusCode == 200) {
       setState(() {
         message = message;
+      });
+      print('Message updated successfully');
+    } else {
+      print('Failed to update message');
+    }
+  }
+  Future<void> imagechange(String username, String image) async {
+    final Map<String, dynamic> requestBody = {
+      'username': username,
+      'image' : image,
+    };
+    final response = await http.post(
+      Uri.parse('http://172.20.10.2:8080/spot/updateimage'),
+      // Spring Boot API 엔드포인트 주소로 변경
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _selectedProfileImage=image;
       });
       print('Message updated successfully');
     } else {
@@ -184,7 +204,7 @@ class MyAppState extends State<MyAppPage> {
                   value: _selectedProfileImage,
                   onChanged: (String? newValue) {
                     setState(() {
-                      _selectedProfileImage = newValue!;
+                      imagechange(accountName, newValue!);
                     });
                   },
                   items: <String>[
