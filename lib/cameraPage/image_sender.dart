@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 
 Future<void> uploadImage(File imageFile) async {
   final url = Uri.parse(
-      'http://10.0.2.2:8080/api/images'); //('http://172.20.10.2:8080/api/images'); // 업로드할 서버의 URL로 변경
+      'http://172.20.10.2:8080/api/images'); //('http://172.20.10.2:8080/api/images'); // 업로드할 서버의 URL로 변경
 
   // 이미지 파일을 읽어 MultipartFile로 변환
   final imageStream = http.ByteStream(imageFile.openRead());
