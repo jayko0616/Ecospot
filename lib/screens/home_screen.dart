@@ -436,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.shopping_cart_rounded),
+              leading: const Icon(Icons.bar_chart),
               iconColor: Colors.teal,
               focusColor: const Color(0xFF327035),
               title: const Text('랭킹'),

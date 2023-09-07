@@ -154,7 +154,7 @@ class MyAppState extends State<MyAppPage> {
     } else if (imgPath =='assets/images/bear.png') {
       return 'bear';
     } else if (imgPath =='assets/images/polarbear.png') {
-      return 'polarbear';
+      return 'polar bear';
     } else if (imgPath =='assets/images/wolf.png') {
       return 'wolf';
     }
@@ -185,12 +185,11 @@ class MyAppState extends State<MyAppPage> {
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
-
           Container(
             margin: const EdgeInsets.all(10),
             width: 30,
-            height: 30,
-            child: Text('프로필 카드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+            height: 25,
+            child: const Text('나의 프로필 카드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
           ),
           Card(
             margin: const EdgeInsets.all(10),
@@ -200,27 +199,12 @@ class MyAppState extends State<MyAppPage> {
             ),
             elevation: 4.0, // 그림자 깊이
             color: const Color(0xA5E5E1D4),
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.all(15),
-                  child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Color(0xFFC6FF89),
-                      child: ClipOval(
-                          child: Image.asset(_selectedProfileImage,
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover)
-                      )
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                DropdownButton<String>(
-                  disabledHint: const Text('프로필', style: TextStyle(color: Colors.black),),
+                  padding: EdgeInsets.only(left: 15),
+                child: DropdownButton<String>(
                   value: _selectedProfileImage,
                   onChanged: (String? newValue) {
                     setState(() {
@@ -238,29 +222,70 @@ class MyAppState extends State<MyAppPage> {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: SizedBox(
-                        width: 30,
+                        width: 45,
                         height: 15,
-                        child: Text(imageText, style: TextStyle(fontSize: 15),),
+                        child: Text(imageText,
+                          style: const TextStyle(fontSize: 14),
+                          overflow: TextOverflow.visible),
                       ),
                     );
                   }).toList(),
                 ),
+                ),
+
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(15.0),
+                  child: CircleAvatar(
+                      radius: 120,
+                      backgroundColor: const Color(0xFFC6FF89),
+                      child: ClipOval(
+                          child: Image.asset(_selectedProfileImage,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.contain)
+                      )
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Container(
+                  padding: EdgeInsets.only(left: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                    Text('${accountName}', style: const TextStyle(
+                        color: Colors.teal,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),),
+                    Text('${accountEmail}', style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 15),),
+                    const SizedBox(height: 10),
+                    Text('소개: ${message}', style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold),),
+                    ],
+                  )
+                )
               ],
             ),
-            const SizedBox(height: 16.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${accountName}'),
-                Text('${accountEmail}'),
-                Text('점수: ${ranknum}'),
-                Text('소개: ${message}'),
-                // Add other user-related information here
-              ],
-            ),
-          ],
-        ),
     ),
+            Card(
+              margin: const EdgeInsets.all(10), 
+              shape: RoundedRectangleBorder(// 경계는 네모모양
+                borderRadius: BorderRadius.circular(16.0), // Radius는 16정도로.
+              ), 
+              elevation: 4.0, // 그림자 깊이
+              color: const Color(0xA5E5E1D4),
+              child: Row(
+                children: [
+                  //Text()
+                ],
+              )
+            ),
+
         ],
       ),
       drawer: Drawer(
@@ -374,7 +399,7 @@ class MyAppState extends State<MyAppPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.shopping_cart_rounded),
+              leading: const Icon(Icons.bar_chart),
               iconColor: Colors.teal,
               focusColor: const Color(0xFF327035),
               title: const Text('랭킹'),
