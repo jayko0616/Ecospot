@@ -16,14 +16,12 @@ class MyAppPage extends StatefulWidget {
 class MyAppState extends State<MyAppPage> {
   static String accountName = '';
   static String accountEmail = '';
-  static int? ranknum;
+  static int ranknum=0;
   static String message = '';
   static String _selectedProfileImage = 'assets/images/panda.png';
+  String? userIntroduction = '';
 
   final TextEditingController messageController = TextEditingController();
-  String? userIntroduction = '';
-  final TextEditingController introductionController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -44,31 +42,25 @@ class MyAppState extends State<MyAppPage> {
       List<dynamic>? userRank = await getUserRanknum(username);
       if (userRank != null) {
         setState(() {
-          ranknum = userRank[0];
+          ranknum = userRank[0] ?? 0;
           message = userRank[1] ?? '';
         });
       }
-    }
-
-    String? introduction = prefs.getString('introduction');
-    if (introduction != null) {
-      setState(() {
-        userIntroduction = introduction;
-      });
     }
   }
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
     final apiUrl =
-        'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
+        'http://172.20.10.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        final List<dynamic> dataList = json.decode(response.body);
+        final dataList = json.decode(response.body);
         if (dataList.isNotEmpty) {
-          final Map<String, dynamic> data = dataList[0];
+          print(dataList);
+          final Map<String, dynamic> data = dataList;
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
           return [ranknum, message];
@@ -86,8 +78,34 @@ class MyAppState extends State<MyAppPage> {
     }
   }
 
+  Future<void> NewMessage(String username, int ranknum, String message) async {
+    final Map<String, dynamic> requestBody = {
+      'username': username,
+      'ranknum' : ranknum,
+      'message': message,
+    };
+    print(username);
+    print(ranknum);
+    print(message);
+    final response = await http.post(
+      Uri.parse('http://172.20.10.2:8080/spot/updateMessage'),
+      // Spring Boot API 엔드포인트 주소로 변경
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        message = message;
+      });
+      print('Message updated successfully');
+    } else {
+      print('Failed to update message');
+    }
+  }
+
   Future<void> logout() async {
-    final apiUrl = 'http://10.0.2.2:8080/api/auth/signout';
+    final apiUrl = 'http://172.20.10.2:8080/api/auth/signout';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
@@ -128,6 +146,20 @@ class MyAppState extends State<MyAppPage> {
     }
   }
 
+  String? stringConverter(String imgPath) {
+    if (imgPath =='assets/images/panda.png') {
+      return 'panda';
+    } else if (imgPath =='assets/images/penguin.png') {
+      return 'penquin';
+    } else if (imgPath =='assets/images/bear.png') {
+      return 'bear';
+    } else if (imgPath =='assets/images/polarbear.png') {
+      return 'polarbear';
+    } else if (imgPath =='assets/images/wolf.png') {
+      return 'wolf';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,19 +182,45 @@ class MyAppState extends State<MyAppPage> {
           // Add other app bar actions here if needed
         ],
       ),
-      body: Center(
-        child: Row(
+      body: ListView(
+        padding: const EdgeInsets.all(10),
+        children: [
+
+          Container(
+            margin: const EdgeInsets.all(10),
+            width: 30,
+            height: 30,
+            child: Text('프로필 카드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+          ),
+          Card(
+            margin: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              // 경계는 네모모양
+              borderRadius: BorderRadius.circular(16.0), // Radius는 16정도로.
+            ),
+            elevation: 4.0, // 그림자 깊이
+            color: const Color(0xA5E5E1D4),
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Column(
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage(_selectedProfileImage),
-                  backgroundColor: Colors.lightGreenAccent,
+                Container(
+                  padding: EdgeInsets.all(15),
+                  child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xFFC6FF89),
+                      child: ClipOval(
+                          child: Image.asset(_selectedProfileImage,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover)
+                      )
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 DropdownButton<String>(
+                  disabledHint: const Text('프로필', style: TextStyle(color: Colors.black),),
                   value: _selectedProfileImage,
                   onChanged: (String? newValue) {
                     setState(() {
@@ -176,12 +234,13 @@ class MyAppState extends State<MyAppPage> {
                     'assets/images/polarbear.png',
                     'assets/images/wolf.png',
                   ].map<DropdownMenuItem<String>>((String value) {
+                    String imageText = stringConverter(value) ?? ' ';
                     return DropdownMenuItem<String>(
                       value: value,
                       child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Image.asset(value),
+                        width: 30,
+                        height: 15,
+                        child: Text(imageText, style: TextStyle(fontSize: 15),),
                       ),
                     );
                   }).toList(),
@@ -201,6 +260,8 @@ class MyAppState extends State<MyAppPage> {
             ),
           ],
         ),
+    ),
+        ],
       ),
       drawer: Drawer(
         backgroundColor: const Color(0xFFC9C8C2),
@@ -244,7 +305,6 @@ class MyAppState extends State<MyAppPage> {
                         builder: (BuildContext context) {
                           final TextEditingController tempIntroductionController =
                           TextEditingController(text: userIntroduction);
-
                           return AlertDialog(
                             title: const Text('소개 편집'),
                             content: TextField(
@@ -256,12 +316,15 @@ class MyAppState extends State<MyAppPage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   String introduction = tempIntroductionController.text;
-                                  setState(() {
-                                    userIntroduction = introduction;
-                                  });
+
+                                  String name = accountName;
+                                  int rank = ranknum;
+
+                                  await NewMessage(name,rank, introduction);
                                   Navigator.of(context).pop();
+
                                 },
                                 child: const Text('확인'),
                               ),
@@ -276,11 +339,13 @@ class MyAppState extends State<MyAppPage> {
                         },
                       );
                     },
-                    child: Text('소개: ${userIntroduction ?? ''}'),
-                  )
+                    child: Text('소개: ${message ?? ''}',
+                      style: TextStyle(
+                      fontSize: 14.0,),
+                    ),
 
-                ],
-              ),
+                  ),
+              ],)
             ),
             ListTile(
               leading: const Icon(Icons.home_filled),

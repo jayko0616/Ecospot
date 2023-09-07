@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _sendPlaceToServer(
       String name, LatLng location, PlaceCategory category) async {
-    final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+    final apiUrl = 'http://172.20.10.2:8080'; // 실제 API 엔드포인트 URL로 변경
     final response = await http.post(
       Uri.parse(apiUrl + '/spot/addplace'), // 장소 등록 엔드포인트로 변경
       headers: <String, String>{
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return; // 카테고리가 선택되지 않았을 때는 아무 작업도 하지 않음
     }
 
-    final apiUrl = 'http://10.0.2.2:8080'; // 실제 API 엔드포인트 URL로 변경
+    final apiUrl = 'http://172.20.10.2:8080'; // 실제 API 엔드포인트 URL로 변경
 
     // 장소 목록을 가져오는 API 호출
     final response = await http.get(

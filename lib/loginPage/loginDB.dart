@@ -14,7 +14,7 @@ class AuthenticatedUser {
 
 // 로그인
 Future<AuthenticatedUser?> login(String username, String password) async {
-  final apiUrl = 'http://10.0.2.2:8080';
+  final apiUrl = 'http://172.20.10.2:8080';
   final response = await http.post(
     Uri.parse(apiUrl + '/api/auth/signin'),
     headers: <String, String>{
