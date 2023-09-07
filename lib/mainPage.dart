@@ -451,6 +451,7 @@ class MyAppState extends State<MyAppPage> {
                     style: const TextStyle(
                       fontSize: 14.0,
                     ),
+                  ),
                     Text(
                       '점수: ${ranknum ?? 0}',
                       style: TextStyle(
@@ -498,8 +499,7 @@ class MyAppState extends State<MyAppPage> {
                     },
                     child: Text('소개: ${message ?? ''}',
                       style: const TextStyle(
-                      fontSize: 14.0,),
-
+                      fontSize: 14.0,),)
                     ),
                   ],
                 )),
