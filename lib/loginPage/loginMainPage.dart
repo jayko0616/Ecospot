@@ -45,7 +45,8 @@ class _TokenCheckState extends State<TokenCheck> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: isToken ? MyAppPage() : LoginPage());
+        //home: isToken ? MyAppPage() : LoginPage());
+        home: MyAppPage());
   }
 }
 
