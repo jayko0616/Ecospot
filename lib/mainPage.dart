@@ -146,6 +146,20 @@ class MyAppState extends State<MyAppPage> {
     }
   }
 
+  String? stringConverter(String imgPath) {
+    if (imgPath =='assets/images/panda.png') {
+      return 'panda';
+    } else if (imgPath =='assets/images/penguin.png') {
+      return 'penquin';
+    } else if (imgPath =='assets/images/bear.png') {
+      return 'bear';
+    } else if (imgPath =='assets/images/polarbear.png') {
+      return 'polarbear';
+    } else if (imgPath =='assets/images/wolf.png') {
+      return 'wolf';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,19 +182,45 @@ class MyAppState extends State<MyAppPage> {
           // Add other app bar actions here if needed
         ],
       ),
-      body: Center(
-        child: Row(
+      body: ListView(
+        padding: const EdgeInsets.all(10),
+        children: [
+
+          Container(
+            margin: const EdgeInsets.all(10),
+            width: 30,
+            height: 30,
+            child: Text('프로필 카드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+          ),
+          Card(
+            margin: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              // 경계는 네모모양
+              borderRadius: BorderRadius.circular(16.0), // Radius는 16정도로.
+            ),
+            elevation: 4.0, // 그림자 깊이
+            color: const Color(0xA5E5E1D4),
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Column(
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage(_selectedProfileImage),
-                  backgroundColor: Colors.lightGreenAccent,
+                Container(
+                  padding: EdgeInsets.all(15),
+                  child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xFFC6FF89),
+                      child: ClipOval(
+                          child: Image.asset(_selectedProfileImage,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover)
+                      )
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 DropdownButton<String>(
+                  disabledHint: const Text('프로필', style: TextStyle(color: Colors.black),),
                   value: _selectedProfileImage,
                   onChanged: (String? newValue) {
                     setState(() {
@@ -194,12 +234,13 @@ class MyAppState extends State<MyAppPage> {
                     'assets/images/polarbear.png',
                     'assets/images/wolf.png',
                   ].map<DropdownMenuItem<String>>((String value) {
+                    String imageText = stringConverter(value) ?? ' ';
                     return DropdownMenuItem<String>(
                       value: value,
                       child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Image.asset(value),
+                        width: 30,
+                        height: 15,
+                        child: Text(imageText, style: TextStyle(fontSize: 15),),
                       ),
                     );
                   }).toList(),
@@ -219,6 +260,8 @@ class MyAppState extends State<MyAppPage> {
             ),
           ],
         ),
+    ),
+        ],
       ),
       drawer: Drawer(
         backgroundColor: const Color(0xFFC9C8C2),
