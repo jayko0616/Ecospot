@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
         TextEditingController nameController = TextEditingController();
         cameraInit();
         return AlertDialog(
-          title: Text("Add Place"),
+          title: Text("장소추가"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: "Place Name"),
+                decoration: InputDecoration(labelText: "장소명"),
               ),
               SizedBox(height: 16),
               ElevatedButton(
