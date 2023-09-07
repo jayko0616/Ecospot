@@ -249,6 +249,7 @@ class MyAppState extends State<MyAppPage> {
                 ),
                 const SizedBox(height: 16.0),
                 Container(
+                  alignment: Alignment.center,
                   padding: EdgeInsets.only(left: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,10 +259,11 @@ class MyAppState extends State<MyAppPage> {
                         color: Colors.teal,
                         fontSize: 30,
                         fontWeight: FontWeight.bold),),
+                      const SizedBox(height: 10),
                     Text('${accountEmail}', style: const TextStyle(
                         color: Colors.black,
                         fontSize: 15),),
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
                     Text('소개: ${message}', style: const TextStyle(
                         color: Colors.black,
                         fontSize: 15,
