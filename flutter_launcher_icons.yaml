@@ -1,0 +1,4 @@
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icons.png"  # 아이콘 이미지 파일의 경로

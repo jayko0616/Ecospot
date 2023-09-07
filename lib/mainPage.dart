@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, file_names
-
 import 'package:flutter/material.dart';
 import 'package:ecospot/loginPage/loginMainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,7 +6,6 @@ import 'package:ecospot/screens/rank_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// 기본 홈
 class MyAppPage extends StatefulWidget {
   const MyAppPage({super.key});
 
@@ -17,22 +14,20 @@ class MyAppPage extends StatefulWidget {
 }
 
 class MyAppState extends State<MyAppPage> {
-  static String accountName = ''; // 사용자 이름을 저장할 변수
-  static String accountEmail = ''; // 사용자 이메일을 저장할 변수
-  static int? ranknum = 0;
+  static String accountName = '';
+  static String accountEmail = '';
+  static int ranknum=0;
   static String message = '';
-  static String _selectedProfileImage = 'assets/images/panda.png'; // 기본 프로필 이미지
+  static String _selectedProfileImage = 'assets/images/panda.png';
+  String? userIntroduction = '';
 
   final TextEditingController messageController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
-    // 앱이 시작될 때 사용자 정보를 가져오는 작업을 수행
     loadUserData();
   }
 
-  // 사용자 정보를 가져오고 ranknum을 가져오는 함수
   void loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username');
@@ -43,31 +38,32 @@ class MyAppState extends State<MyAppPage> {
       accountEmail = email ?? '';
     });
 
-  if (username != null) {
-  List<dynamic>? userRank = await getUserRanknum(username);
-  if (userRank != null) {
-  setState(() {
-  ranknum = userRank[0];
-  message = userRank[1] ?? '';
-  });
+    if (username != null) {
+      List<dynamic>? userRank = await getUserRanknum(username);
+      if (userRank != null) {
+        setState(() {
+          ranknum = userRank[0] ?? 0;
+          message = userRank[1] ?? '';
+        });
+      }
+    }
   }
-  }
-}
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
-    final apiUrl = 'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
+    final apiUrl =
+        'http://172.20.10.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        final List<dynamic> dataList = json.decode(response.body);
+        final dataList = json.decode(response.body);
         if (dataList.isNotEmpty) {
           print(dataList);
-          final Map<String, dynamic> data = dataList[0];
+          final Map<String, dynamic> data = dataList;
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
-          return [ranknum,message];
+          return [ranknum, message];
         } else {
           print('Empty data list received.');
           return null;
@@ -82,10 +78,34 @@ class MyAppState extends State<MyAppPage> {
     }
   }
 
+  Future<void> NewMessage(String username, int ranknum, String message) async {
+    final Map<String, dynamic> requestBody = {
+      'username': username,
+      'ranknum' : ranknum,
+      'message': message,
+    };
+    print(username);
+    print(ranknum);
+    print(message);
+    final response = await http.post(
+      Uri.parse('http://172.20.10.2:8080/spot/updateMessage'),
+      // Spring Boot API 엔드포인트 주소로 변경
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        message = message;
+      });
+      print('Message updated successfully');
+    } else {
+      print('Failed to update message');
+    }
+  }
 
   Future<void> logout() async {
-    final apiUrl =
-        'http://10.0.2.2:8080/api/auth/signout'; // 실제 로그아웃 API 엔드포인트 URL로 변경해야 함
+    final apiUrl = 'http://172.20.10.2:8080/api/auth/signout';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
@@ -93,14 +113,14 @@ class MyAppState extends State<MyAppPage> {
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: <String, String>{
-        'Authorization': 'Bearer $token', // 토큰을 헤더에 추가
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 200) {
-      await prefs.remove('token'); // 토큰 삭제
-      await prefs.remove('username'); // 토큰 삭제
-      await prefs.remove('email'); // 토큰 삭제
+      await prefs.remove('token');
+      await prefs.remove('username');
+      await prefs.remove('email');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginMainPage()),
@@ -159,12 +179,7 @@ class MyAppState extends State<MyAppPage> {
             },
             icon: const Icon(Icons.search),
           ),
-          IconButton(
-            onPressed: () {
-              // 내정보 가져오기
-            },
-            icon: const Icon(Icons.person),
-          )
+          // Add other app bar actions here if needed
         ],
       ),
       body: ListView(
@@ -249,7 +264,7 @@ class MyAppState extends State<MyAppPage> {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: Color(0xFFC9C8C2),
+        backgroundColor: const Color(0xFFC9C8C2),
         child: ListView(
           children: [
             DrawerHeader(
@@ -261,7 +276,7 @@ class MyAppState extends State<MyAppPage> {
                 children: [
                   const CircleAvatar(
                     backgroundImage:
-                        AssetImage('assets/images/ecospotNewLogo.png'),
+                    AssetImage('assets/images/ecospotNewLogo.png'),
                   ),
                   const SizedBox(height: 8.0),
                   Text(
@@ -283,14 +298,54 @@ class MyAppState extends State<MyAppPage> {
                       fontSize: 14.0,
                     ),
                   ),
-                  Text(
-                    '소개: ${message ?? ''}',
-                    style: TextStyle(
-                      fontSize: 14.0,
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          final TextEditingController tempIntroductionController =
+                          TextEditingController(text: userIntroduction);
+                          return AlertDialog(
+                            title: const Text('소개 편집'),
+                            content: TextField(
+                              controller: tempIntroductionController,
+                              maxLength: 30,
+                              decoration: const InputDecoration(
+                                labelText: '30자 이내의 소개를 입력하세요',
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  String introduction = tempIntroductionController.text;
+
+                                  String name = accountName;
+                                  int rank = ranknum;
+
+                                  await NewMessage(name,rank, introduction);
+                                  Navigator.of(context).pop();
+
+                                },
+                                child: const Text('확인'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('취소'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text('소개: ${message ?? ''}',
+                      style: TextStyle(
+                      fontSize: 14.0,),
                     ),
+
                   ),
-                ],
-              ),
+              ],)
             ),
             ListTile(
               leading: const Icon(Icons.home_filled),
@@ -327,11 +382,11 @@ class MyAppState extends State<MyAppPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          RankScreen()), // 랭킹 페이지로 이동
+                      builder: (context) => RankScreen()), // 랭킹 페이지로 이동
                 );
               },
             ),
+            // Add more drawer menu items here
             ListTile(
               leading: const Icon(Icons.settings),
               iconColor: Colors.teal,
@@ -346,4 +401,10 @@ class MyAppState extends State<MyAppPage> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: MyAppPage(),
+  ));
 }
