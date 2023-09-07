@@ -16,14 +16,12 @@ class MyAppPage extends StatefulWidget {
 class MyAppState extends State<MyAppPage> {
   static String accountName = '';
   static String accountEmail = '';
-  static int? ranknum;
+  static int ranknum=0;
   static String message = '';
   static String _selectedProfileImage = 'assets/images/panda.png';
+  String? userIntroduction = '';
 
   final TextEditingController messageController = TextEditingController();
-  String? userIntroduction = '';
-  final TextEditingController introductionController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -44,31 +42,25 @@ class MyAppState extends State<MyAppPage> {
       List<dynamic>? userRank = await getUserRanknum(username);
       if (userRank != null) {
         setState(() {
-          ranknum = userRank[0];
+          ranknum = userRank[0] ?? 0;
           message = userRank[1] ?? '';
         });
       }
-    }
-
-    String? introduction = prefs.getString('introduction');
-    if (introduction != null) {
-      setState(() {
-        userIntroduction = introduction;
-      });
     }
   }
 
   Future<List<dynamic>?> getUserRanknum(String? username) async {
     final apiUrl =
-        'http://10.0.2.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
+        'http://172.20.10.2:8080/spot/pick?username=$username'; // 실제 API 엔드포인트 URL로 변경해야 함
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        final List<dynamic> dataList = json.decode(response.body);
+        final dataList = json.decode(response.body);
         if (dataList.isNotEmpty) {
-          final Map<String, dynamic> data = dataList[0];
+          print(dataList);
+          final Map<String, dynamic> data = dataList;
           final int? ranknum = data['ranknum'];
           final String? message = data['message'];
           return [ranknum, message];
@@ -86,8 +78,34 @@ class MyAppState extends State<MyAppPage> {
     }
   }
 
+  Future<void> NewMessage(String username, int ranknum, String message) async {
+    final Map<String, dynamic> requestBody = {
+      'username': username,
+      'ranknum' : ranknum,
+      'message': message,
+    };
+    print(username);
+    print(ranknum);
+    print(message);
+    final response = await http.post(
+      Uri.parse('http://172.20.10.2:8080/spot/updateMessage'),
+      // Spring Boot API 엔드포인트 주소로 변경
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        message = message;
+      });
+      print('Message updated successfully');
+    } else {
+      print('Failed to update message');
+    }
+  }
+
   Future<void> logout() async {
-    final apiUrl = 'http://10.0.2.2:8080/api/auth/signout';
+    final apiUrl = 'http://172.20.10.2:8080/api/auth/signout';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
@@ -244,7 +262,6 @@ class MyAppState extends State<MyAppPage> {
                         builder: (BuildContext context) {
                           final TextEditingController tempIntroductionController =
                           TextEditingController(text: userIntroduction);
-
                           return AlertDialog(
                             title: const Text('소개 편집'),
                             content: TextField(
@@ -256,12 +273,15 @@ class MyAppState extends State<MyAppPage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   String introduction = tempIntroductionController.text;
-                                  setState(() {
-                                    userIntroduction = introduction;
-                                  });
+
+                                  String name = accountName;
+                                  int rank = ranknum;
+
+                                  await NewMessage(name,rank, introduction);
                                   Navigator.of(context).pop();
+
                                 },
                                 child: const Text('확인'),
                               ),
@@ -276,11 +296,13 @@ class MyAppState extends State<MyAppPage> {
                         },
                       );
                     },
-                    child: Text('소개: ${userIntroduction ?? ''}'),
-                  )
+                    child: Text('소개: ${message ?? ''}',
+                      style: TextStyle(
+                      fontSize: 14.0,),
+                    ),
 
-                ],
-              ),
+                  ),
+              ],)
             ),
             ListTile(
               leading: const Icon(Icons.home_filled),

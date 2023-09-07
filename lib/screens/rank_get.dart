@@ -15,7 +15,7 @@ class Storephotos {
   List<PiscumPhotoModel> photos = [];
 
   Future<void> fetchPhotos() async {
-    final apiUrl = 'http://10.0.2.2:8080/spot/load'; // API 엔드포인트를 여기에 입력하세요.
+    final apiUrl = 'http://172.20.10.2:8080/spot/load'; // API 엔드포인트를 여기에 입력하세요.
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
